@@ -33,17 +33,21 @@ plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty
 }
 
 
-plotfused <- function(jump.mean,jump.location,y,res,lambda, tol=1e-3){
+plotfused <- function(jump.mean, jump.location, y, res, lambda, tol=1e-3){
   par(mfrow=c(2,1),mar=c(1,1,1,1))
   plot(y,col=rgb(.5,.5,.5),pch=16,cex=1.25)
   n = length(y)
   
   #plot truth
   tmp = seq(0,1,length.out=n)
-  jump.location = sapply(jump.location,function(x){max(min(which(tmp>=x)),1)-1})
-  jump.location[1] = 1
-  jump.location = sort(jump.location)
-  plot.helper(jump.location, jump.mean, n, col="red")
+  jump.location2 = sapply(jump.location,function(x){max(min(which(tmp>=x)),1)-1})
+  jump.location2[1] = 1
+  jump.location2 = sort(jump.location2)
+  #browser()
+  jump.location3 = c(jump.location2,n)
+  jump.location3[1] = 0
+  true.seq = rep(jump.mean,times=diff(jump.location3))
+  plot.helper(jump.location2, jump.mean, n, col="red")
   
   
   tmpdiff = diff(res)
@@ -57,7 +61,7 @@ plotfused <- function(jump.mean,jump.location,y,res,lambda, tol=1e-3){
   tmp.up = round(median(y)+diff(range(y))*.4,2)
   tmp.down = round(median(y)-diff(range(y))*.4,2)
   text(x=0, y=tmp.up, labels=as.character(tmp.up),col="red")
-  text(x=0, y=0, labels=as.character(0),col="red")
+  text(x=n, y=0, labels=as.character(0),col="red")
   text(x=0, y=tmp.down, labels=as.character(tmp.down),col="red")
   
   #plot dual
@@ -67,8 +71,8 @@ plotfused <- function(jump.mean,jump.location,y,res,lambda, tol=1e-3){
   lines(z,col="blue",lwd=2)
   lines(x=c(-100,n+100),y=rep(lambda,2),lty=2,lwd=2,col="red")
   lines(x=c(-100,n+100),y=rep(-lambda,2),lty=2,lwd=2,col="red")
-  for(i in 1:length(jump.location)){
-    lines(x=rep(jump.location[i],2),y=c(-5*lambda,5*lambda),lty=2,lwd=2,col="red")
+  for(i in 1:length(jump.location2)){
+    lines(x=rep(jump.location2[i],2),y=c(-5*lambda,5*lambda),lty=2,lwd=2,col="red")
   }
   
   tmp = which(abs(abs(z)-lambda)<tol)
@@ -79,6 +83,9 @@ plotfused <- function(jump.mean,jump.location,y,res,lambda, tol=1e-3){
       lines(x=rep(tmp[i],2),y=c(-lambda,-5*lambda))
     } 
   }
+  
+  #some basic text on the bottom (mse, lambda, n)
+  text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(sum((true.seq-res)^2)/n,3)," // Lambda: ",round(lambda,2)," // n: ",n,sep=""),pos=4)
   
   invisible()
 }

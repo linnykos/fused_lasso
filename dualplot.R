@@ -1,3 +1,4 @@
+rm(list=ls())
 library("genlasso")
 source("dualplot_source.R")
 
@@ -46,17 +47,16 @@ dualplot_suite(baseline+random.seq,3,jump.mean-baseline.mean,jump.location)
 dualplot_suite(2*baseline+sqrt(2)*random.seq,3,2*(jump.mean-baseline.mean),jump.location)
 dualplot_suite(2*baseline+random.seq,3,2*(jump.mean-baseline.mean),jump.location)
 
-#use the fact that our theory shows lambda = sqrt(log(en)*sigma) should be good
 sigma = 1
 n.length = 5
 n.vec = seq(100,500,length.out=n.length)
-jump.mean =     c(0, 2,  4, 1, 4)
-jump.location = c(0, .2, .4, .6, .8)
+jump.mean.org =     c(0, 2,  4, 1, 4)
+jump.location.org = c(0, .2, .4, .6, .8)
 
 for(i in 1:n.length){
   set.seed(10)
-  y = generate.problem(n.vec[i], jump.location, jump.mean*log(n.vec[i]), sigma)
-  dualplot_suite(y, sqrt(n.vec[i]*(log(n.vec[i])+1)*sigma),jump.mean*log(n.vec[i]),jump.location) 
+  y = generate.problem(n.vec[i], jump.location.org, jump.mean.org*log(n.vec[i]), sigma)
+  dualplot_suite(y, sqrt(n.vec[i]*(log(n.vec[i])+1)*sigma),jump.mean.org*log(n.vec[i]),jump.location.org) 
 }
 
 
