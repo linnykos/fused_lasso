@@ -1,0 +1,25 @@
+import("genlasso", "Ckmeans.1d.dp", "MASS", "quadprog", "cvxclustr")
+
+export("cfl.1D",
+       "sfl.1D",
+	  "sfl",
+	  "dfl.1D",
+	  "crit.1D",
+	  "mse.1D",
+	  "generate.problem",
+	  "plot.helper",
+	  "plotspecial",
+	  "plot.helper",
+       "eval.coef",
+	  "cfl.1D.l0",
+	  "sfl.1D.l0",
+	  "sfl.l0",
+	  "dfl.1D.l0",
+	  "crit.1D.l0",
+        "plotspecial.l0",
+	  "convex_clust",
+        "L0Seg",
+        "construct.truth",
+        "hausdorff.dist")
+
+useDynLib("clusteredfusedlasso")
