@@ -1,109 +1,62 @@
-library(clusteredfusedlasso)
-################################
-#SUBSECTION 1: standard test
+library("genlasso")
+source("dualplot_source.R")
 
-
-plot.helper <- function(jump.location, jump.mean, col = "black", lwd = 3, lty = 1){
-  
-  len = length(jump.location)
-  for(i in 1:(len-1)){
-    lines(x=c(jump.location[i],jump.location[i+1]),y=rep(jump.mean[i],2),col=col,lwd=lwd,lty=lty)
-  }
-  lines(x=c(jump.location[len],n),y=rep(jump.mean[len],2),col=col,lwd=lwd,lty=lty)
-  
-  invisible()
-}
-
-
-plotfused <- function(jump.mean,jump.location,y,res,lambda){
-  tol = 0.0001
-  par(mfrow=c(2,1),mar=c(1,1,1,1))
-  plot(y,col=rgb(.5,.5,.5),pch=16,cex=1.25)
-  n = length(y)
-  
-  #plot truth
-  tmp = seq(0,1,length.out=n)
-  jump.location = sapply(jump.location,function(x){min(which(tmp>=x))})
-  jump.location[1] = 1
-  plot.helper(jump.location, jump.mean, col="red")
-  
-  
-  tmpdiff = diff(res)
-  tmpdiff[abs(tmpdiff)<tol] = 0
-  res.jumploc = c(1,(which(tmpdiff != 0)+1))
-  res.jumpmean = res[res.jumploc]
-  plot.helper(res.jumploc, res.jumpmean, col=rgb(0,1,0))
-  
-  tmp = res-y
-  z = cumsum(tmp)
-  plot(z,ylim=c(-1.5*lambda,1.5*lambda),col=rgb(.5,.5,.5),pch=16)
-  lines(z,col="blue",lwd=2)
-  lines(x=c(-100,n+100),y=rep(lambda,2),lty=2,lwd=2,col="red")
-  lines(x=c(-100,n+100),y=rep(-lambda,2),lty=2,lwd=2,col="red")
-  for(i in 1:length(jump.location)){
-    lines(x=rep(jump.location[i],2),y=c(-5*lambda,5*lambda),lty=2,lwd=2,col="red")
-  }
-
-  
-  tmp = which(abs(abs(z)-lambda)<tol)
-  for(i in 1:length(tmp)){
-    if(z[tmp[i]]>0) {
-      lines(x=rep(tmp[i],2),y=c(lambda,5*lambda))
-    } else {
-      lines(x=rep(tmp[i],2),y=c(-lambda,-5*lambda))
-    } 
-  }
-  
-  invisible()
-}
-
-
-############################
 set.seed(10)
 n = 100
 sigma = 1
 dist = 1
 jump.mean =     c(0, 2,  4, 1, 4)*dist
 jump.location = c(0, .2, .4, .6, .8)
-y = generate.problem(n, jump.location, jump.mean, sigma)
-fres = fusedlasso1d(y)
 
-lambda = 3
-res = coef(fres,lambda=lambda)$beta
-plotfused(jump.mean,jump.location,y,res,lambda)
+#denoised
+y = generate.problem(n, jump.location, jump.mean, 0)
+dualplot_suite(y,3,jump.mean,jump.location)
 
-tmp = res-y
-n = length(y)
-z = cumsum(tmp)
-idx = which(abs(abs(z)-lambda)<tol)
-tmpdiff = diff(res)
-tmpdiff[abs(tmpdiff)<tol] = 0
-res.jumploc = c(1,(which(tmpdiff != 0)+1))
-res.jumpmean = res[res.jumploc]
-svec = sign(diff(res.jumpmean))
-#NEED TO BUMP BY ONE INDEX (z should be a vector of length n+1)
-svec[10]=1
-tmpmean = rep(0,length(svec)+1)
-tmpmean[1] = 1/idx[1]*sum(y[1:idx[1]])+lambda/idx[1]*svec[1]
-for(i in 2:(length(svec))){
-  tmpmean[i] = 1/(idx[i]-idx[i-1])*sum(y[(idx[i-1]+1):idx[i]])+lambda/(idx[i]-idx[i-1])*(svec[i]-svec[i-1])
+#standard scenario
+set.seed(10)
+y.org = generate.problem(n, jump.location, jump.mean, sigma)
+dualplot_suite(y.org,3,jump.mean,jump.location)
+
+#rescaled
+dualplot_suite(y.org*2,3,jump.mean*2,jump.location)
+
+dualplot_suite(y.org+10,3,jump.mean+10,jump.location)
+
+#for experiment, shift the largest 20 points
+ordering = order(y,decreasing=TRUE)
+y.mod = y.org
+select.num = 10
+y.mod[ordering[1:select.num]] = y.org[ordering[1:select.num]]+20
+dualplot_suite(y.mod,3,jump.mean,jump.location) #jump.mean is not necessarily meaningful
+
+#re-center y.org and then rescale
+y.mean = mean(y.org)
+y.centered = y.org - y.mean
+dualplot_suite(2*y.centered,3,2*(jump.mean-y.mean),jump.location)
+
+#try rescaling the mean and noise but a sqrt level
+set.seed(10)
+random.seq = rnorm(n,sd=sigma)
+random.seq = random.seq - mean(random.seq)
+baseline = generate.problem(n, jump.location, jump.mean, sigma = 0)
+baseline.mean = mean(baseline)
+baseline = baseline - baseline.mean
+dualplot_suite(baseline+random.seq,3,jump.mean-baseline.mean,jump.location)
+
+dualplot_suite(2*baseline+sqrt(2)*random.seq,3,2*(jump.mean-baseline.mean),jump.location)
+dualplot_suite(2*baseline+random.seq,3,2*(jump.mean-baseline.mean),jump.location)
+
+#use the fact that our theory shows lambda = sqrt(log(en)*sigma) should be good
+sigma = 1
+n.length = 5
+n.vec = seq(100,500,length.out=n.length)
+jump.mean =     c(0, 2,  4, 1, 4)
+jump.location = c(0, .2, .4, .6, .8)
+
+for(i in 1:n.length){
+  set.seed(10)
+  y = generate.problem(n.vec[i], jump.location, jump.mean*log(n.vec[i]), sigma)
+  dualplot_suite(y, sqrt(n.vec[i]*(log(n.vec[i])+1)*sigma),jump.mean*log(n.vec[i]),jump.location) 
 }
-i = length(svec)+1
-tmpmean[i] = 1/(n-idx[i-1])*sum(y[(idx[i-1]+1):n])+lambda/(n-idx[i-1])*(-svec[i-1])
-#reconstruct the beta vec
-tmp = diff(c(1,res.jumploc[-1],n+1))
-tmpres = rep(tmpmean,tmp)
-#check the z's
-tmp = tmpres-y
-tmpz = cumsum(tmp)
-#check KKT conditions
-print(paste("Max z: ",max(abs(tmpz)),sep=""))
-for(i in 1:length(svec)){
-  print(paste("Check jump ",i,": ",tmpz[idx[i]],"=",lambda*sign(tmpres[idx[i]+1]-tmpres[idx[i]]),sep=""))
-}
-print(paste("Check sum: ",sum(y),"=",sum(tmpres),sep=""))
-print(rbind(tmpmean,c(0,svec)))
-plot(z)
-plot(tmpz)
-lines(x=c(-1000,1000),y=rep(lambda,2),col="red",lty=2,lwd=2)
-lines(x=c(-1000,1000),y=rep(-lambda,2),col="red",lty=2,lwd=2)
+
+
