@@ -1,3 +1,6 @@
+library(genlasso)
+library(assertthat)
+
 generate.problem <- function(n, jump.location, jump.mean, sigma = 0, random.seq = NA){
   #convert jump.location into integer indices
   tmp = seq(0,1,length.out=n)
@@ -33,20 +36,18 @@ plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty
 }
 
 
-plotfused <- function(jump.mean, jump.location, y, res, lambda, tol=1e-3){
+plotfused <- function(jump.mean, jump.location, y, res, lambda, 
+                      num.est.jumps, mse = NA, tol = 1e-4){
   par(mfrow=c(2,1),mar=c(1,1,1,1))
   plot(y,col=rgb(.5,.5,.5),pch=16,cex=1.25)
   n = length(y)
+  if(is.na(mse)) mse = compute.mse(jump.mean, jump.location, res)
   
   #plot truth
   tmp = seq(0,1,length.out=n)
   jump.location2 = sapply(jump.location,function(x){max(min(which(tmp>=x)),1)-1})
   jump.location2[1] = 1
   jump.location2 = sort(jump.location2)
-  #browser()
-  jump.location3 = c(jump.location2,n)
-  jump.location3[1] = 0
-  true.seq = rep(jump.mean,times=diff(jump.location3))
   plot.helper(jump.location2, jump.mean, n, col="red")
   
   
@@ -85,16 +86,62 @@ plotfused <- function(jump.mean, jump.location, y, res, lambda, tol=1e-3){
   }
   
   #some basic text on the bottom (mse, lambda, n)
-  text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(sum((true.seq-res)^2)/n,3)," // Lambda: ",round(lambda,2)," // n: ",n,sep=""),pos=4)
+  text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(mse,3)," // Lambda: ",round(lambda,2)," // num.est.jumps: ",num.est.jumps,sep=""),pos=4)
   
   invisible()
 }
 
-dualplot_suite <- function(y, lambda, jump.mean, jump.location){
-  fres = fusedlasso1d(y)
-  res = coef(fres,lambda=lambda)$beta
-  plotfused(jump.mean,jump.location,y,res,lambda)
-  invisible()
+dualplot_suite <- function(y, jump.mean, jump.location, lambda = NA, 
+                           num.est.jumps = NA, plot.res = TRUE,
+                           fused.lasso.obj = NA, return.fusedlasso = FALSE){
+  assert_that(!is.na(lambda) || !is.na(num.est.jumps))
+  
+  if(is.na(fused.lasso.obj[1])) {
+    fres = fusedlasso1d(y)
+  } else {
+    fres = fused.lasso.obj
+  }
+  
+  if(!is.na(lambda)) {
+    tmp = coef(fres,lambda=lambda)
+    res = tmp$beta
+    num.est.jumps = count.jumps(res)
+  } else {
+    tmp = coef(fres,df=num.est.jumps)
+    res = tmp$beta
+    lambda = tmp$lambda
+  }
+  mse = compute.mse(jump.mean, jump.location, res)
+  
+  if(plot.res) plotfused(jump.mean,jump.location,y,res,lambda,num.est.jumps,mse)
+
+  ret = list()
+  ret[["coef"]] = res
+  ret[["lambda"]] = lambda
+  ret[["jumps"]] = num.est.jumps
+  ret[["mse"]] = mse
+  if(return.fusedlasso) ret[["fusedlasso"]] = fres
+  
+  return(ret)
+}
+
+compute.mse <- function(jump.mean, jump.location, res){
+  n = length(res)
+  
+  tmp = seq(0,1,length.out=n)
+  jump.location2 = sapply(jump.location,function(x){max(min(which(tmp>=x)),1)-1})
+  jump.location2[1] = 1
+  jump.location2 = sort(jump.location2)
+  jump.location3 = c(jump.location2,n)
+  jump.location3[1] = 0
+
+  true.seq = rep(jump.mean,times=diff(jump.location3))
+  
+  sum((true.seq-res)^2)/n
+}
+
+count.jumps <- function(res, tol=1e-3){
+  length(which(abs(diff(res))>tol))
 }
 
 #dummy function temporarily
