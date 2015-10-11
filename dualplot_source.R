@@ -1,7 +1,7 @@
 library(genlasso)
 library(assertthat)
 
-generate.problem <- function(n, jump.location, jump.mean, sigma = 0, random.seq = NA){
+generate.problem <- function(n, jump.mean, jump.location,  sigma = 0, random.seq = NA){
   #convert jump.location into integer indices
   tmp = seq(0,1,length.out=n)
   jump.location = sapply(jump.location,function(x){min(which(tmp>=x))})
@@ -41,7 +41,9 @@ plotfused <- function(jump.mean, jump.location, y, res, lambda,
   par(mfrow=c(2,1),mar=c(1,1,1,1))
   plot(y,col=rgb(.5,.5,.5),pch=16,cex=1.25)
   n = length(y)
-  if(is.na(mse)) mse = compute.mse(jump.mean, jump.location, res)
+  
+  true.seq = form.truth(jump.mean, jump.location, n)
+  if(is.na(mse)) mse = compute.mse(res, true.seq = true.seq)
   
   #plot truth
   tmp = seq(0,1,length.out=n)
@@ -111,7 +113,7 @@ dualplot_suite <- function(y, jump.mean, jump.location, lambda = NA,
     res = tmp$beta
     lambda = tmp$lambda
   }
-  mse = compute.mse(jump.mean, jump.location, res)
+  mse = compute.mse(res, jump.mean, jump.location)
   
   if(plot.res) plotfused(jump.mean,jump.location,y,res,lambda,num.est.jumps,mse)
 
@@ -125,8 +127,25 @@ dualplot_suite <- function(y, jump.mean, jump.location, lambda = NA,
   return(ret)
 }
 
-compute.mse <- function(jump.mean, jump.location, res){
+compute.mse <- function(res, jump.mean=NA, jump.location=NA, true.seq=NA){
+  bool1 = !is.na(jump.mean[1]) & !is.na(jump.location[1])
+  bool2 = !is.na(true.seq[1])
+  assert_that(bool1 | bool2)
+  
   n = length(res)
+  
+  if(bool1) true.seq = form.truth(jump.mean, jump.location, n)
+  
+  sum((true.seq-res)^2)/n
+}
+
+count.jumps <- function(res, tol=1e-3){
+  length(which(abs(diff(res))>tol))
+}
+
+form.truth <- function(jump.mean, jump.location, n){
+  assert_that(min(jump.location)>=0)
+  assert_that(max(jump.location)<=1)
   
   tmp = seq(0,1,length.out=n)
   jump.location2 = sapply(jump.location,function(x){max(min(which(tmp>=x)),1)-1})
@@ -134,14 +153,8 @@ compute.mse <- function(jump.mean, jump.location, res){
   jump.location2 = sort(jump.location2)
   jump.location3 = c(jump.location2,n)
   jump.location3[1] = 0
-
-  true.seq = rep(jump.mean,times=diff(jump.location3))
   
-  sum((true.seq-res)^2)/n
-}
-
-count.jumps <- function(res, tol=1e-3){
-  length(which(abs(diff(res))>tol))
+  rep(jump.mean,times=diff(jump.location3))
 }
 
 #dummy function temporarily

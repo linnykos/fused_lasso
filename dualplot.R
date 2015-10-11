@@ -10,8 +10,8 @@ jump.mean =     c(0, 2,  4, 1, 4)*dist
 jump.location = c(0, .2, .4, .6, .8)
 
 #denoised
-y = generate.problem(n, jump.location, jump.mean, sigma)
-res = dualplot_suite(y,jump.mean,jump.location,num.est.jumps=12)
+y = generate.problem(n, jump.mean, jump.location,  sigma)
+res = dualplot_suite(y,jump.mean, jump.location,num.est.jumps=12)
 
 #standard scenario
 set.seed(10)
