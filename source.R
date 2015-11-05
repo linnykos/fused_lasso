@@ -2,6 +2,11 @@ library(genlasso)
 library(assertthat)
 source("source_plotter.R")
 
+compute.dual <- function(y, res){
+  tmp = res-y
+  cumsum(tmp)
+}
+
 generate.problem <- function(n, jump.mean, jump.location,  sigma = 0, random.seq = NA){
   #convert jump.location into integer indices
   tmp = seq(0,1,length.out=n)
