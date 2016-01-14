@@ -1,6 +1,3 @@
-library(quadprog)
-source("source.R")
-
 threshold.fit <- function(fit, num.jumps){
   num.est.jumps = count.jumps(fit)
   if(num.jumps >= num.est.jumps) return(fit)

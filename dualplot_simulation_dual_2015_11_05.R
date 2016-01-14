@@ -19,6 +19,7 @@ for(i in 1:trials){
   set.seed(10*i)
   y = generate.problem(n, jump.mean.org, jump.location.org,  sigma)
   
+  res = dualplot_suite(y, jump.mean.org, jump.location.org, lambda = 15)
   res = dualplot_suite(y, jump.mean.org, jump.location.org, lambda = 15, plot.res = FALSE)
   dual.list[[i]] = compute.dual(y,res$coef)
   

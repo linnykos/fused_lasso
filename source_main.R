@@ -1,6 +1,5 @@
-library(genlasso)
-library(assertthat)
-source("source_plotter.R")
+##Standard to abide by: a jump at idx "2" means x[2] != x[3]
+
 
 compute.dual <- function(y, res){
   tmp = res-y
@@ -83,8 +82,8 @@ compute.mse <- function(res, jump.mean=NA, jump.location=NA, true.seq=NA){
   sum((true.seq-res)^2)/n
 }
 
-count.jumps <- function(res, tol=1e-3){
-  length(which(abs(diff(res))>tol))
+count.jumps <- function(fit, tol=1e-3){
+  length(enumerate.jumps(fit, tol))
 }
 
 form.truth <- function(jump.mean, jump.location, n){
@@ -98,7 +97,25 @@ form.truth <- function(jump.mean, jump.location, n){
   jump.location3 = c(jump.location2,n)
   jump.location3[1] = 0
   
-  rep(jump.mean,times=diff(jump.location3))
+  rep(jump.mean, times=diff(jump.location3))
+}
+
+enumerate.jumps <- function(fit, tol = 1e-4, include.endpoints = FALSE){
+  dif = abs(diff(fit))
+  idx = which(dif > tol)
+  
+  if(include.endpoints) c(1, idx, length(fit)+1) else idx
+}
+
+#if one.sided = TRUE, then only measure the distance from set1 to set2
+## (i.e., how well set2 covers set1)
+compute.hausdorff <- function(set1, set2, one.sided = FALSE){
+  dist.mat = sapply(set1, function(i){abs(i-set2)})
+  dist.vecx = apply(dist.mat, 2, min)
+  
+  if(!one.sided) dist.vecy = apply(dist.mat, 1, min) else dist.vecy = 0
+  
+  max(dist.vecx, dist.vecy)
 }
 
 form.diff.matrix <- function(n){

@@ -1,5 +1,3 @@
-library(genlasso)
-library(assertthat)
 
 plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty = 1){
   
