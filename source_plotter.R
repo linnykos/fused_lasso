@@ -13,27 +13,55 @@ plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty
 }
 
 
-plotfused <- function(jump.mean, jump.location, y, res, lambda, 
-                      num.est.jumps, mse = NA, tol = 1e-7){
+plotfused <- function(jump.mean, jump.location, y, fit, lambda, 
+                      num.est.jumps, mse = NA, tol = 1e-7,
+                      filter.bandwidth = NA, plotDual = T){
+  
+  n = length(fit)
+  true.seq = form.truth(jump.mean, jump.location, n)
+  if(is.na(mse)) mse = compute.mse(fit, true.seq = true.seq)
+  
   par(mfrow=c(2,1),mar=c(1,1,1,1))
+
   plot(y,col=rgb(.5,.5,.5),pch=16,cex=1.25)
+
+  .plot.primal(jump.mean, jump.location, y, fit, tol)
+  
+  #plot dual
+  if(plotDual) {
+    .plot.dual(jump.location, y, fit, lambda, num.est.jumps, mse, tol)
+  } else {
+    if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.5*sqrt(n))
+    
+    .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps)
+  }
+ 
+  invisible()
+}
+
+.extract.location <- function(jump.location, sequence){
+  jump.location2 = sapply(jump.location, function(x){max(min(which(
+    sequence>=x)),1)-1})
+  jump.location2[1] = 1
+  jump.location2 = sort(jump.location2)
+  
+  jump.location2
+}
+
+.plot.primal <- function(jump.mean, jump.location, y, fit, tol){
   n = length(y)
   
   true.seq = form.truth(jump.mean, jump.location, n)
-  if(is.na(mse)) mse = compute.mse(res, true.seq = true.seq)
   
   #plot truth
-  tmp = seq(0,1,length.out=n)
-  jump.location2 = sapply(jump.location,function(x){max(min(which(tmp>=x)),1)-1})
-  jump.location2[1] = 1
-  jump.location2 = sort(jump.location2)
+  tmp = seq(0, 1,length.out = n)
+  jump.location2 = .extract.location(jump.location, tmp)
   plot.helper(jump.location2, jump.mean, n, col="red")
-  
-  
-  tmpdiff = diff(res)
+
+  tmpdiff = diff(fit) 
   tmpdiff[abs(tmpdiff)<tol] = 0
   res.jumploc = c(1,(which(abs(tmpdiff)>tol)))
-  res.jumpmean = res[res.jumploc+1]
+  res.jumpmean = fit[res.jumploc+1]
   res.jumploc = sort(res.jumploc)
   plot.helper(res.jumploc, res.jumpmean, n, col=rgb(0,1,0))
   
@@ -44,13 +72,22 @@ plotfused <- function(jump.mean, jump.location, y, res, lambda,
   text(x=n, y=0, labels=as.character(0),col="red")
   text(x=0, y=tmp.down, labels=as.character(tmp.down),col="red")
   
-  #plot dual
-  tmp = res-y
+  invisible()
+}
+
+.plot.dual <- function(jump.location, y, fit, lambda, 
+                       num.est.jumps, mse, tol){
+  tmp = fit-y
   z = cumsum(tmp)
   plot(z,ylim=c(-1.5*lambda,1.5*lambda),col=rgb(.5,.5,.5),pch=16)
   lines(z,col="blue",lwd=2)
   lines(x=c(-100,n+100),y=rep(lambda,2),lty=2,lwd=2,col="red")
   lines(x=c(-100,n+100),y=rep(-lambda,2),lty=2,lwd=2,col="red")
+  
+  n = length(y)
+  tmp = seq(0, 1,length.out = n)
+  jump.location2 = .extract.location(jump.location, tmp)
+  
   for(i in 1:length(jump.location2)){
     lines(x=rep(jump.location2[i],2),y=c(-5*lambda,5*lambda),lty=2,lwd=2,col="red")
   }
@@ -65,7 +102,52 @@ plotfused <- function(jump.mean, jump.location, y, res, lambda,
   }
   
   #some basic text on the bottom (mse, lambda, n)
-  text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(mse,3)," // Lambda: ",round(lambda,2)," // num.est.jumps: ",num.est.jumps,sep=""),pos=4)
+  text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(mse,3)," // Lambda: ",round(lambda,2),
+                                      " // num.est.jumps: ",num.est.jumps, sep=""),pos=4)
   
   invisible()
+  
+}
+
+.plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps){
+  n = length(fit)
+  
+  z = sapply((filter.bandwidth+1):(n-filter.bandwidth+1), function(x){
+    mean(fit[(x-filter.bandwidth):(x-1)]) - mean(fit[x:(x+filter.bandwidth-1)])
+  })
+  
+  #pad the z's
+  z = c(rep(0, filter.bandwidth), z, rep(0, filter.bandwidth-1))
+  
+  min.dif = min(abs(diff(jump.mean)))
+  
+  plot(z, ylim = c(min(-min.dif,z), max(min.dif,z)), col=rgb(0, 0, 1),pch=16)
+
+  lines(x = c(-n, 2*n), y = rep(-min.dif, 2), lty = 2, lwd = 2, col = "red")
+  lines(x = c(-n, 2*n), y = rep(min.dif, 2), lty = 2, lwd = 2, col = "red")
+  lines(x = c(-n, 2*n), y = rep(0, 2), lty = 2, lwd = 2, col = "red")
+  
+  n = length(y)
+  tmp = seq(0, 1,length.out = n)
+  jump.location2 = .extract.location(jump.location, tmp)
+  
+  for(i in 1:length(jump.location2)){
+    lines(x = rep(jump.location2[i],2),y = c(-5*lambda,5*lambda), lty = 2, 
+          lwd = 2, col = "red")
+  }
+  
+  #put text up for a pseudo-y-axis
+  tmp.up = round(median(z)+diff(range(z))*.4, 2)
+  tmp.down = round(median(z)-diff(range(z))*.4, 2)
+  text(x=0, y=tmp.up, labels=as.character(tmp.up),col="red")
+  text(x=0, y=tmp.down, labels=as.character(tmp.down),col="red")
+  
+  
+  #some basic text on the bottom (mse, lambda, n)
+  text(x = n, y = 0.7*min(z), labels = paste("MSE: ", round(mse,3), "\nLambda: ", round(lambda,2),
+                                      "\nnum.est.jumps: ", num.est.jumps, 
+                                      "\nFilter Width: ", filter.bandwidth, sep = ""), pos = 2)
+  
+  invisible()
+  
 }

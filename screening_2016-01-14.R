@@ -7,8 +7,8 @@ sigma = 1
 n.length = 10
 n.vec = round(10^seq(2, 4, length.out = n.length))
 trials = 50
-jump.mean.org =     c(0, 2,  4, 1, 4)
-jump.location.org = c(0, .2, .4, .6, .8)
+jump.mean =     c(0, 2,  4, 1, 4)
+jump.location = c(0, .2, .4, .6, .8)
 
 setup = list(sigma = sigma, n.vec = n.vec, jump.mean = jump.mean.org, 
              jump.location = jump.location.org)
@@ -22,7 +22,7 @@ jumps.mat = matrix(0, ncol = trials, nrow = n.length)
 simulation_suite <- function(trial){
   set.seed(i*trial*10)
     
-  y = generate.problem(n.vec[i], jump.mean.org, jump.location.org,  sigma)
+  y = generate.problem(n.vec[i], jump.mean, jump.location,  sigma)
     
   res = fusedlasso1d(y)
   cv = cv.trendfilter(res, verbose = FALSE)
@@ -37,16 +37,16 @@ simulation_suite <- function(trial){
   jumps = count.jumps(fit)
 
   #plot
-  png(paste0("~/DUMP/fused_lasso_n-", n.vec[i], "_trial-", trial, "_", DATE, ".png"), 
+  #png(paste0("~/DUMP/fused_lasso_n-", n.vec[i], "_trial-", trial, "_", DATE, ".png"), 
    width = 8, height = 3, units = "in", res = 300)
-  plotfused(jump.mean.org, jump.location.org, y, fit, cv$lambda.1se, count.jumps(fit))
-  dev.off()
+  plotfused(jump.mean, jump.location, y, fit, cv$lambda.1se, count.jumps(fit))
+  #dev.off()
  
   c(dist, haus, lambda, mse, jumps)
 }
 
 for(i in 1:n.length){
-  truth = form.truth(jump.mean.org, jump.location.org, n.vec[i])
+  truth = form.truth(jump.mean, jump.location, n.vec[i])
   true.jumps = enumerate.jumps(truth)
  
   res.tmp = foreach(trial = 1:trials) %dopar% simulation_suite(trial)
@@ -68,7 +68,7 @@ for(i in 1:n.length){
 
 png("~/DUMP/truth_2016-01-27.png", height = 5, width = 10, units = "in", res = 300)
 plot(y, col = rgb(.5,.5,.5), pch = 16, cex = 1.25)
-plot.helper(c(1,true.jumps,n.vec[i]), jump.mean.org, n.vec[i], col="red")
+plot.helper(c(1,true.jumps,n.vec[i]), jump.mean, n.vec[i], col="red")
 dev.off()
 
 lambda.mat = res$lambda.mat
