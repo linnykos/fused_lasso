@@ -22,8 +22,8 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   if(is.na(mse)) mse = compute.mse(fit, true.seq = true.seq)
   
   par(mfrow=c(2,1),mar=c(1,1,1,1))
-
-  plot(y,col=rgb(.5,.5,.5),pch=16,cex=1.25)
+  
+  plot(y, col=rgb(.5,.5,.5), pch=16, cex=1.25)
 
   .plot.primal(jump.mean, jump.location, y, fit, tol)
   
@@ -31,11 +31,11 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   if(plotDual) {
     .plot.dual(jump.location, y, fit, lambda, num.est.jumps, mse, tol)
   } else {
-    if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.5*log(n)^2)
+    if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.25*log(n)^2)
     
     .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps)
   }
- 
+  
   invisible()
 }
 
@@ -122,7 +122,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   lines(x = c(-n, 2*n), y = rep(min.dif/2, 2), lty = 2, lwd = 2, col = "red")
   lines(x = c(-n, 2*n), y = rep(0, 2), lty = 2, lwd = 2, col = "red")
   
-  n = length(y)
+  n = length(fit)
   #plot the filtered jump locations
   jump.filter = apply.filter(fit, filter.bandwidth, min.dif/2, return.type = "location")
   max.bound = max(abs(z))
@@ -151,7 +151,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   #some basic text on the bottom (mse, lambda, n)
   text(x = n, y = 0.7*min(z), labels = paste("MSE: ", round(mse,3), "\nLambda: ", round(lambda,2),
                                       "\nnum.est.jumps: ", num.est.jumps, 
-                                      "\nFilter Width: ", filter.bandwidth, sep = ""), pos = 2)
+                                      "\nFilter Width: ", filter.bandwidth, sep = ""), pos = 2, cex = 0.8)
   
   invisible()
   
