@@ -100,9 +100,10 @@ form.truth <- function(jump.mean, jump.location, n){
   rep(jump.mean, times=diff(jump.location3))
 }
 
+#outputs the first index in a new segment
 enumerate.jumps <- function(fit, tol = 1e-4, include.endpoints = FALSE){
   dif = abs(diff(fit))
-  idx = which(dif > tol)
+  idx = which(dif > tol) + 1
   
   if(include.endpoints) c(1, idx, length(fit)+1) else idx
 }

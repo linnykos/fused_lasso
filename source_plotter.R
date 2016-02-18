@@ -31,7 +31,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   if(plotDual) {
     .plot.dual(jump.location, y, fit, lambda, num.est.jumps, mse, tol)
   } else {
-    if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.5*sqrt(n))
+    if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.5*log(n)^2)
     
     .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps)
   }
@@ -112,27 +112,32 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
 .plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps){
   n = length(fit)
   
-  z = sapply((filter.bandwidth+1):(n-filter.bandwidth+1), function(x){
-    mean(fit[(x-filter.bandwidth):(x-1)]) - mean(fit[x:(x+filter.bandwidth-1)])
-  })
-  
-  #pad the z's
-  z = c(rep(0, filter.bandwidth), z, rep(0, filter.bandwidth-1))
-  
   min.dif = min(abs(diff(jump.mean)))
+  
+  z = apply.filter(fit, filter.bandwidth, min.dif/2, return.type = "filter")
   
   plot(z, ylim = c(min(-min.dif,z), max(min.dif,z)), col=rgb(0, 0, 1),pch=16)
 
-  lines(x = c(-n, 2*n), y = rep(-min.dif, 2), lty = 2, lwd = 2, col = "red")
-  lines(x = c(-n, 2*n), y = rep(min.dif, 2), lty = 2, lwd = 2, col = "red")
+  lines(x = c(-n, 2*n), y = rep(-min.dif/2, 2), lty = 2, lwd = 2, col = "red")
+  lines(x = c(-n, 2*n), y = rep(min.dif/2, 2), lty = 2, lwd = 2, col = "red")
   lines(x = c(-n, 2*n), y = rep(0, 2), lty = 2, lwd = 2, col = "red")
   
   n = length(y)
+  #plot the filtered jump locations
+  jump.filter = apply.filter(fit, filter.bandwidth, min.dif/2, return.type = "location")
+  max.bound = max(abs(z))
+  
+  for(i in 1:length(jump.filter)){
+    lines(x = rep(jump.filter[i],2), y = c(-5*max.bound, 5*max.bound))
+  }
+  
+  
+  #plot the true jump locations
   tmp = seq(0, 1,length.out = n)
   jump.location2 = .extract.location(jump.location, tmp)
   
   for(i in 1:length(jump.location2)){
-    lines(x = rep(jump.location2[i],2),y = c(-5*lambda,5*lambda), lty = 2, 
+    lines(x = rep(jump.location2[i],2),y = c(-5*max.bound, 5*max.bound), lty = 2, 
           lwd = 2, col = "red")
   }
   
