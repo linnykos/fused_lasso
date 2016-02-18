@@ -1,7 +1,7 @@
 rm(list=ls())
 source("source_header.R")
 
-registerDoMC(cores = 12)
+registerDoMC(cores = 18)
 
 sigma = 1
 n.length = 10
