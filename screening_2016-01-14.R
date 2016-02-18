@@ -132,3 +132,26 @@ dev.off()
 png(paste0("~/DUMP/hausdorff-plot_", DATE, ".png"), height = 5, width = 5,
   units = "in", res = 300)
 
+haus.vec = apply(res$haus.mat, 1, mean)
+haus.std = apply(res$haus.mat, 1, sd)
+
+plot(x = n.vec, y = haus.vec, pch = 16, cex = 2, xlab = "Length of vector (n)",
+     ylab = "Hausdorff Distance", ylim = c(0, max(haus.vec + haus.std)))
+lines(x = n.vec, y = haus.vec, lwd = 2)
+for(i in 1:length(haus.std)) {
+  lines(x = rep(n.vec[i], 2), y = c(haus.vec[i] - haus.std[i], haus.vec[i] + haus.std[i]),
+        cex = 2)
+}
+
+
+haus.vec = apply(res$haus.filter.mat, 1, mean)
+haus.std = apply(res$haus.filter.mat, 1, sd)
+
+points(x = n.vec, y = haus.vec, pch = 16, cex = 2, xlab = "Length of vector (n)",
+     ylab = "Hausdorff Distance", ylim = c(0, max(haus.vec + haus.std)), col = "red")
+lines(x = n.vec, y = haus.vec , col = "red", lwd = 2)
+for(i in 1:length(haus.std)) {
+  lines(x = rep(n.vec[i], 2), y = c(haus.vec[i] - haus.std[i], haus.vec[i] + haus.std[i]),
+        cex = 2, col = "red")
+}
+dev.off()
