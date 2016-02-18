@@ -7,22 +7,24 @@ sigma = 1
 n.length = 10
 n.vec = round(10^seq(2, 4, length.out = n.length))
 trials = 50
-jump.mean.org =     c(0, 2,  4, 1, 4)
-jump.location.org = c(0, .2, .4, .6, .8)
+jump.mean =     c(0, 2,  4, 1, 4)
+jump.location = c(0, .2, .4, .6, .8)
 
-setup = list(sigma = sigma, n.vec = n.vec, jump.mean = jump.mean.org, 
-             jump.location = jump.location.org)
+setup = list(sigma = sigma, n.vec = n.vec, jump.mean = jump.mean, 
+             jump.location = jump.location)
 
 dist.mat = matrix(0, ncol = trials, nrow = n.length)
 lambda.mat = matrix(0, ncol = trials, nrow = n.length)
 mse.mat = matrix(0, ncol = trials, nrow = n.length)
 haus.mat = matrix(0, ncol = trials, nrow = n.length)
 jumps.mat = matrix(0, ncol = trials, nrow = n.length)
+haus.filter.mat = matrix(0, ncol = trials, nrow = n.length)
+jumps.filter.mat = matrix(0, ncol = trials, nrow = n.length)
 
 simulation_suite <- function(trial){
   set.seed(i*trial*10)
     
-  y = generate.problem(n.vec[i], jump.mean.org, jump.location.org,  sigma)
+  y = generate.problem(n.vec[i], jump.mean, jump.location,  sigma)
     
   res = fusedlasso1d(y)
   cv = cv.trendfilter(res, verbose = FALSE)
@@ -35,18 +37,24 @@ simulation_suite <- function(trial){
   lambda = cv$lambda.1se
   mse = compute.mse(fit, true.seq = truth)
   jumps = count.jumps(fit)
+  
+  filter.bandwidth = ceiling(0.25*(log(length(y)))^2)
+  jumps.filter.idx = apply.filter(fit, filter.bandwidth, 0.5, return.type = "location")
+  haus.filter = compute.hausdorff(true.jumps, jumps.filter.idx)
+  jumps.filter = length(jumps.filter.idx)
 
   #plot
   png(paste0("~/DUMP/fused_lasso_n-", n.vec[i], "_trial-", trial, "_", DATE, ".png"), 
    width = 8, height = 3, units = "in", res = 300)
-  plotfused(jump.mean.org, jump.location.org, y, fit, cv$lambda.1se, count.jumps(fit))
+  plotfused(jump.mean, jump.location, y, fit, cv$lambda.1se, count.jumps(fit), 
+            filter.bandwidth = filter.bandwidth, plotDual = F)
   dev.off()
  
-  c(dist, haus, lambda, mse, jumps)
+  c(dist, haus, lambda, mse, jumps, haus.filter, jumps.filter)
 }
 
 for(i in 1:n.length){
-  truth = form.truth(jump.mean.org, jump.location.org, n.vec[i])
+  truth = form.truth(jump.mean, jump.location, n.vec[i])
   true.jumps = enumerate.jumps(truth)
  
   res.tmp = foreach(trial = 1:trials) %dopar% simulation_suite(trial)
@@ -57,6 +65,8 @@ for(i in 1:n.length){
   lambda.mat[i,] = res.tmp[3,]
   mse.mat[i,] = res.tmp[4,]
   jumps.mat[i,] = res.tmp[5,]
+  haus.filter.mat[i,] = res.tmp[6,]
+  jumps.filter.mat[i,] = res.tmp[7,]
 
   res = list(dist.mat = dist.mat, lambda.mat = lambda.mat, mse.mat = mse.mat,
    haus.mat = haus.mat, jumps.mat = jumps.mat, setup = setup)
@@ -68,7 +78,7 @@ for(i in 1:n.length){
 
 png("~/DUMP/truth_2016-01-27.png", height = 5, width = 10, units = "in", res = 300)
 plot(y, col = rgb(.5,.5,.5), pch = 16, cex = 1.25)
-plot.helper(c(1,true.jumps,n.vec[i]), jump.mean.org, n.vec[i], col="red")
+plot.helper(c(1,true.jumps,n.vec[i]), jump.mean, n.vec[i], col="red")
 dev.off()
 
 lambda.mat = res$lambda.mat
