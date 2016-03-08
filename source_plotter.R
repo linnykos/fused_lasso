@@ -13,7 +13,7 @@ plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty
 }
 
 
-plotfused <- function(jump.mean, jump.location, y, fit, lambda, 
+plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda, 
                       num.est.jumps, mse = NA, tol = 1e-7,
                       filter.bandwidth = NA, plotDual = T){
   
@@ -33,7 +33,8 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   } else {
     if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.25*log(n)^2)
     
-    .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps)
+    .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, 
+                 num.est.jumps, truebeta = truth)
   }
   
   invisible()
@@ -109,15 +110,28 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
   
 }
 
-.plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, num.est.jumps){
+.plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, 
+                         lambda, mse, num.est.jumps, truebeta = NA){
   n = length(fit)
   
   min.dif = min(abs(diff(jump.mean)))
   
   z = apply.filter(fit, filter.bandwidth, min.dif/2, return.type = "filter")
   
-  plot(z, ylim = c(min(-min.dif,z), max(min.dif,z)), col=rgb(0, 0, 1),pch=16)
-
+  if(all(!is.na(truebeta))){
+    truez = apply.filter(truebeta, filter.bandwidth, min.dif/2, 
+                         return.type = "filter")
+    ylim = c(min(-min.dif, z, truez), max(min.dif, z, truez))
+    plot(truez, ylim = ylim, col = "green", pch = 16)
+    
+    points(z, col = "blue", pch = 16)
+    
+  } else {
+    ylim = c(min(-min.dif,z), max(min.dif,z))
+    plot(z, ylim = ylim, col = "blue", pch = 16)
+  }
+  
+  
   lines(x = c(-n, 2*n), y = rep(-min.dif/2, 2), lty = 2, lwd = 2, col = "red")
   lines(x = c(-n, 2*n), y = rep(min.dif/2, 2), lty = 2, lwd = 2, col = "red")
   lines(x = c(-n, 2*n), y = rep(0, 2), lty = 2, lwd = 2, col = "red")
