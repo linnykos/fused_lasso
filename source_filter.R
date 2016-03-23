@@ -1,4 +1,4 @@
-apply.filter <- function(fit, bandwidth, threshold, y = NA, return.type = c("location", "filter", "refit")){
+apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c("location", "filter", "refit")){
   n = length(fit)
   return.type = return.type[1]
   
@@ -26,3 +26,25 @@ apply.filter <- function(fit, bandwidth, threshold, y = NA, return.type = c("loc
   
   return(refit)
 }
+
+bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 500, quant = 0.95){
+  assert_that(length(y) == length(fit))
+  
+  n = length(y)
+  residuals = y - fit
+  
+  level.vec = numeric(trials)
+  
+  for(trial in 1:trials){
+    residuals.shuff = residuals[sample(n)]
+    
+    flasso = fusedlasso1d(residuals.shuff)
+    residuals.fit = coef(flasso, lambda = lambda)
+    filter.res = apply.filter(flasso, bandwidth = filter.bandwidth, return.type = "filter")
+
+    level.vec[trial] = max(abs(filter.res))
+  }
+
+  quantile(level.vec, prob = quant)
+}
+
