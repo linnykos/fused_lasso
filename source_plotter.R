@@ -79,12 +79,13 @@ plotfused <- function(jump.mean, jump.location, y, fit, lambda,
                        num.est.jumps, mse, tol){
   tmp = fit-y
   z = cumsum(tmp)
+  n = length(y)
+
   plot(z,ylim=c(-1.5*lambda,1.5*lambda),col=rgb(.5,.5,.5),pch=16)
   lines(z,col="blue",lwd=2)
   lines(x=c(-100,n+100),y=rep(lambda,2),lty=2,lwd=2,col="red")
   lines(x=c(-100,n+100),y=rep(-lambda,2),lty=2,lwd=2,col="red")
   
-  n = length(y)
   tmp = seq(0, 1,length.out = n)
   jump.location2 = .extract.location(jump.location, tmp)
   
