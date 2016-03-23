@@ -5,7 +5,7 @@ registerDoMC(cores = 18)
 
 sigma = 1
 n.length = 10
-n.vec = 10000
+n.vec = round(10^seq(2, 4, length.out = n.length))
 trials = 50
 jump.mean =     c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
@@ -38,7 +38,8 @@ simulation_suite <- function(trial){
   haus.haar = compute.hausdorff(true.jumps, jumps.haar.idx)
   jumps.haar = length(jumps.haar.idx)
 
-  level.fit = bootstrap.threshold(y, fit, filter.bandwidth, cv$lambda.1se)
+  level.fit = bootstrap.threshold(y, fit, filter.bandwidth, cv$lambda.1se,
+   trials = 50)
 
  
   c(haus.filter, jumps.filter, haus.haar, jumps.haar, level.fit)
@@ -62,7 +63,7 @@ for(i in 1:n.length){
    jumps.filter.mat = jumps.filter.mat, haus.haar.mat = haus.haar.mat,
    jumps.haar.mat = jumps.haar.mat, 
    level.mat = level.mat,
-setup = setup)
+   setup = setup)
   save(res, file=paste0("~/DUMP/screening_experiment2_", DATE, ".RData"))
  
   cat('*')

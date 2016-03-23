@@ -15,8 +15,13 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
   if(return.type == "filter") return(z)
   
   z.thresIdx = which(abs(z) >= threshold)
-  
-  jump.remain = intersect(jump.loc, z.thresIdx)
+ 
+  jump.loc2 = c(jump.loc, jump.loc-bandwidth, jump.loc+bandwidth-1)
+  jump.loc2 = jump.loc2[which(jump.loc2>0)]
+  jump.loc2 = jump.loc2[which(jump.loc2<=n)]
+  jump.loc2 = sort(unique(jump.loc2))
+ 
+  jump.remain = intersect(jump.loc2	, z.thresIdx)
   if(return.type == "location") return(jump.remain)
   
   jump.remain = c(1, jump.remain, n+1)
@@ -27,7 +32,7 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
   return(refit)
 }
 
-bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 500, quant = 0.95){
+bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50, quant = 0.95, verbose = F){
   assert_that(length(y) == length(fit))
   
   n = length(y)
@@ -40,9 +45,11 @@ bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 500, 
     
     flasso = fusedlasso1d(residuals.shuff)
     residuals.fit = coef(flasso, lambda = lambda)
-    filter.res = apply.filter(flasso, bandwidth = filter.bandwidth, return.type = "filter")
+    filter.res = apply.filter(residuals.fit$beta, bandwidth = filter.bandwidth, return.type = "filter")
 
     level.vec[trial] = max(abs(filter.res))
+
+    if(verbose & trial %% floor(trials/10) == 0) cat('*')
   }
 
   quantile(level.vec, prob = quant)
