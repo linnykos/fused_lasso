@@ -18,6 +18,8 @@ haus.haar.mat = matrix(0, ncol = trials, nrow = n.length)
 jumps.haar.mat = matrix(0, ncol = trials, nrow = n.length)
 haus.filter.mat = matrix(0, ncol = trials, nrow = n.length)
 jumps.filter.mat = matrix(0, ncol = trials, nrow = n.length)
+haus.filter.boot.mat = matrix(0, ncol = trials, nrow = n.length)
+jumps.filter.boot.mat = matrix(0, ncol = trials, nrow = n.length)
 
 simulation_suite <- function(trial){
   set.seed(i*trial*10)
@@ -39,10 +41,12 @@ simulation_suite <- function(trial){
   jumps.haar = length(jumps.haar.idx)
 
   level.fit = bootstrap.threshold(y, fit, filter.bandwidth, cv$lambda.1se,
-   trials = 50)
+   trials = 300, quant = 1)
+  jumps.filter.boot.idx = apply.filter(fit, filter.bandwidth, level.fit, return.type = "location")
+  haus.filter.boot = compute.hausdorff(true.jumps, jumps.filter.boot.idx)
+  jumps.filter.boot = length(jumps.filter.boot.idx)
 
- 
-  c(haus.filter, jumps.filter, haus.haar, jumps.haar, level.fit)
+  c(haus.filter, jumps.filter, haus.haar, jumps.haar, level.fit, haus.filter.boot, jumps.filter.boot)
 }
 
 for(i in 1:n.length){
@@ -57,14 +61,19 @@ for(i in 1:n.length){
   haus.haar.mat[i,] = res.tmp[3,]
   jumps.haar.mat[i,] = res.tmp[4,]
   level.mat[i,] = res.tmp[5,]
-
+  haus.filter.boot.mat[i,] = res.tmp[6,]
+  jumps.filter.boot.mat[i,] = res.tmp[7,]
 
   res = list(haus.filter.mat = haus.filter.mat,
    jumps.filter.mat = jumps.filter.mat, haus.haar.mat = haus.haar.mat,
    jumps.haar.mat = jumps.haar.mat, 
    level.mat = level.mat,
+   haus.filter.boot.mat = haus.filter.boot.mat,
+   jumps.filter.boot.mat = jumps.filter.boot.mat,
    setup = setup)
   save(res, file=paste0("~/DUMP/screening_experiment2_", DATE, ".RData"))
  
   cat('*')
 }
+
+
