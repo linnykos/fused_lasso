@@ -111,7 +111,9 @@ enumerate.jumps <- function(fit, tol = 1e-4, include.endpoints = FALSE){
 #if one.sided = TRUE, then only measure the distance from set1 to set2
 ## (i.e., how well set2 covers set1)
 compute.hausdorff <- function(set1, set2, one.sided = FALSE){
+
   dist.mat = sapply(set1, function(i){abs(i-set2)})
+  if(class(dist.mat) != "matrix") dist.mat = as.matrix(dist.mat, nrow = 1)
   dist.vecx = apply(dist.mat, 2, min)
   
   if(!one.sided) dist.vecy = apply(dist.mat, 1, min) else dist.vecy = 0

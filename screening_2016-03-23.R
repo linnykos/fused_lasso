@@ -40,8 +40,9 @@ simulation_suite <- function(trial){
   haus.haar = compute.hausdorff(true.jumps, jumps.haar.idx)
   jumps.haar = length(jumps.haar.idx)
 
-  level.fit = bootstrap.threshold(y, fit, filter.bandwidth, cv$lambda.1se,
-   trials = 300, quant = 1)
+  set.seed(i*trial*10)
+  level.fit = local.permutation.threshold(y, fit, filter.bandwidth, cv$lambda.1se,
+   trials = 300, quant = 0.9)
   jumps.filter.boot.idx = apply.filter(fit, filter.bandwidth, level.fit, return.type = "location")
   haus.filter.boot = compute.hausdorff(true.jumps, jumps.filter.boot.idx)
   jumps.filter.boot = length(jumps.filter.boot.idx)
@@ -53,7 +54,13 @@ for(i in 1:n.length){
   truth = form.truth(jump.mean, jump.location, n.vec[i])
   true.jumps = enumerate.jumps(truth)
  
-  res.tmp = foreach(trial = 1:trials) %dopar% simulation_suite(trial)
+  res.tmp = vector("list", trials)
+  for(trial in 1:trials){
+    res.tmp[[trial]] = simulation_suite(trial)
+ 
+    save(res.tmp, file=paste0("~/DUMP/screening_experiment2_tmp_", DATE, ".RData"))
+  }
+
   res.tmp = do.call(cbind, res.tmp)  
 
   haus.filter.mat[i,] = res.tmp[1,]
