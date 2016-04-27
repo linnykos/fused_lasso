@@ -1,6 +1,6 @@
 #rearrange the fit to be a big staircase
 staircase.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50,
-  quant = 0.9, tol = 1e-6){
+  quant = 0.95, tol = 1e-6){
 
   assert_that(length(y) == length(fit))
 
@@ -31,7 +31,7 @@ staircase.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50,
 
   threshold.val = foreach(trial = 1:trials) %dopar% custom.func(trial)
 
-  quantile(threshold.val, prob = quant)
+  quantile(unlist(threshold.val), prob = quant)
 }
 
 .arrange.staircase <- function(fit, tol){
@@ -51,7 +51,7 @@ staircase.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50,
     }
   }
 
-  assert_that(all(as.numeric(names(idx.list)) == uniq.val))
+  assert_that(abs(sum(as.numeric(names(idx.list)) - uniq.val)) < tol)
 
   len.vec = sapply(idx.list, length)
   rep(uniq.val, times = len.vec)

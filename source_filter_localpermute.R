@@ -32,7 +32,7 @@
 #locally shuffle the y's and run the fused lasso. keep the points with enough
 # estimated changepoints nearby all the permutations
 local.permutation.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50,
- quant = 0.9, verbose = F, tol = 1e-3, return.perm = F){
+ quant = 0.95, verbose = F, tol = 1e-3, return.perm = F){
   assert_that(length(y) == length(fit))
 
   n = length(y)

@@ -35,25 +35,24 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
 }
 
 #bootstrap the residuals, used fused lasso on the residuals and record filter value to kill the jumps
-bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50, quant = 0.95, verbose = F){
+bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50, quant = 0.95){
   assert_that(length(y) == length(fit))
   
   n = length(y)
   residuals = y - fit
   
-  level.vec = numeric(trials)
-  
-  for(trial in 1:trials){
+  custom.func <- function(trial){
+    set.seed(10*trial)
     residuals.shuff = residuals[sample(n)]
     
     flasso = fusedlasso1d(residuals.shuff)
     residuals.fit = coef(flasso, lambda = lambda)
     filter.res = apply.filter(residuals.fit$beta, bandwidth = filter.bandwidth, return.type = "filter")
 
-    level.vec[trial] = max(abs(filter.res))
-
-    if(verbose & trial %% floor(trials/10) == 0) cat('*')
+    max(abs(filter.res))
   }
 
-  quantile(level.vec, prob = quant)
+  level.vec = foreach(trial = 1:trials) %dopar% custom.func(trial)
+
+  quantile(unlist(level.vec), prob = quant)
 }
