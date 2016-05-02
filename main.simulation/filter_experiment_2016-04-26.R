@@ -3,7 +3,7 @@ rm(list=ls())
 setwd("..")
 source("source_header.R")
 
-sigma = 0.2
+sigma = 1
 n.length = 10
 n.vec = round(10^seq(2, 4, length.out = n.length))
 trials = 50
@@ -12,7 +12,7 @@ jump.location = c(0, .2, .4, .6, .8)
 
 registerDoMC(cores = 10)
 
-i = 4
+i = 7
 truth = form.truth(jump.mean, jump.location, n.vec[i])
 true.jumps = enumerate.jumps(truth)
 

@@ -1,5 +1,5 @@
 #using the puffer transformation on the fused lasso
-puffer.estimate <- function(y){
+puffer.estimate <- function(y, lambda = NULL, verbose = T){
   n = length(y)
 
   #form Y  
@@ -25,9 +25,20 @@ puffer.estimate <- function(y){
   #transform y.centered into a
   a = F.mat %*% y.centered
 
+  if(verbose) print("Finished Problem Setup")
+
   #now run lasso
-  res = cv.glmnet(x = Z, y = a, intercept = F)
-  res.coef = as.numeric(coef(res$glmnet.fit, s = res$lambda.1se)[-1])
+  if(is.null(lambda)){
+    res = cv.glmnet(x = Z, y = a, intercept = F)
+
+    if(verbose) print(paste0("Finished Cross Validation with Lambda = ",
+     res$lambda.1se))
+   
+    res.coef = as.numeric(coef(res$glmnet.fit, s = res$lambda.1se)[-1])
+  } else {
+    res = glmnet(x = Z, y= a, intercept = F)
+    res.coef = as.numeric(coef(res, s = lambda)[-1])
+  }
 
   #transform back to fused lasso solution
   first.val = mean(a) - apply(Z, 2, mean)%*%res.coef

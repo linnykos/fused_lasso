@@ -2,7 +2,7 @@
 rm(list=ls())
 source("source_header.R")
 
-sigma = 0.2
+sigma = 1
 n.length = 10
 n.vec = round(10^seq(2, 4, length.out = n.length))
 trials = 50
