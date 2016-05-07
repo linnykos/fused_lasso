@@ -24,12 +24,12 @@ staircase.threshold <- function(y, fit, filter.bandwidth, lambda, controls =
   sc.jumps = enumerate.jumps(baseline, con@tol)
 
   sc.jumpNeigh = sapply(sc.jumps, function(x){
-   (x-filter.bandwidth):(x+filter.bandwidth)}
-  )
+   max(1,(x-filter.bandwidth)) : min((x+filter.bandwidth), n)
+  })
 
-  sc.jumpNeigh = sort(unique(as.numeric(sc.jumpNeigh)))
+  sc.jumpNeigh = sort(unique(as.numeric(unlist(sc.jumpNeigh))))
 
-  assert_that(length(sc.jumpNeigh) < n)
+  if(length(sc.jumpNeigh) >= n) return(rep(NA, length(con@quant)))
 
   custom.func <- function(trial){
     set.seed(10*trial)

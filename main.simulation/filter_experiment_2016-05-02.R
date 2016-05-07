@@ -10,7 +10,7 @@ trials = 50
 jump.mean =     c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
 
-registerDoMC(cores = 10)
+registerDoMC(cores = 14)
 
 setup = list(sigma = sigma, n.vec = n.vec, jump.mean = jump.mean, 
   jump.location = jump.location)
@@ -44,7 +44,11 @@ for(i in 1:length(n.vec)){
     fit = coef(res, lambda=cv$lambda.1se)$beta
  
     for(j in 1:length(filter.list)){
+   
+     print(paste0("Starting on ",  names(filter.list)[j]))
 
+     set.seed(i*trial*j*10)
+ 
      filter.list[[j]][[i]][trial,] = staircase.threshold(y, fit, 
       filter.bandwidth, cv$lambda.1se, controls = list(type = 
       names(filter.list)[j], quant = seq(0, 1, length.out = 
@@ -54,6 +58,8 @@ for(i in 1:length(n.vec)){
      save(res, file = paste0("~/ryan/fused.git/results/filterExperiment_", 
       DATE, ".RData"))
     }
+
+    print(paste0("Trial ", trial, " for i=", i, " complete!"))
   }
 }
 

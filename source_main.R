@@ -112,6 +112,11 @@ enumerate.jumps <- function(fit, tol = 1e-4, include.endpoints = FALSE){
 ## (i.e., how well set2 covers set1)
 compute.hausdorff <- function(set1, set2, one.sided = FALSE){
 
+  #handle corner cases
+  if(length(set1) == 0 | length(set2) == 0) return(NA)
+  if(length(set2) == 1) set2 = c(set2, set2)
+  if(length(set1) == 1) set1 = c(set1, set1)
+
   dist.mat = sapply(set1, function(i){abs(i-set2)})
   if(class(dist.mat) != "matrix") dist.mat = as.matrix(dist.mat, nrow = 1)
   dist.vecx = apply(dist.mat, 2, min)
