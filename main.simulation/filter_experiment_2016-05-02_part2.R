@@ -4,11 +4,9 @@ setwd("~/ryan/fused.git")
 source("source_header.R")
 
 sigma = 4
-n.length = 10
-n.vec = round(10^seq(2, 4, length.out = n.length))
+n.length = 1
+n.vec = 5000
 trials = 50
-#jump.mean =     c(0, 2,  4, 1, 4)
-#jump.location = c(0, .2, .4, .6, .8)
 jump.mean = seq(0, 5, length.out = 6)
 jump.location = seq(0, 1, length.out = 7)[-7]
 
@@ -42,13 +40,13 @@ for(i in 1:n.length){
 oracle.right.list = oracle.left.list
 
 #load in the thresholds
-load("~/ryan/fused.git/results/filterExperiment_2016-05-02.RData")
+load("~/ryan/fused.git/results/filterExperiment_2016-05-07.RData")
 filter.list = res$filter.list
 
 #run the simulations to see how the hausdorff distance is
 #WARNING: HAS BEEN CHANGED
 #for(i in 1:length(n.vec)){
-for(i in 10){
+for(i in 1:length(n.vec)){
   truth = form.truth(jump.mean, jump.location, n.vec[i])
   true.jumps = enumerate.jumps(truth)
 
@@ -63,7 +61,7 @@ for(i in 10){
     res = fusedlasso1d(y)
     cv = cv.trendfilter(res, verbose = FALSE)
     
-    fit = coef(res, lambda=cv$lambda.1se)$beta
+    fit = coef(res, lambda = cv$lambda.1se)$beta
 
     left.dist = matrix(0, ncol = 101, nrow = 3)
     right.dist = left.dist

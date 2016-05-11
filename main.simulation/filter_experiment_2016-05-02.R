@@ -3,12 +3,12 @@ rm(list=ls())
 setwd("..")
 source("source_header.R")
 
-sigma = 1
-n.length = 10
-n.vec = round(10^seq(2, 4, length.out = n.length))
+sigma = 4
+n.length = 1
+n.vec = 5000
 trials = 50
-jump.mean =     c(0, 2,  4, 1, 4)
-jump.location = c(0, .2, .4, .6, .8)
+jump.mean = seq(0, 5, length.out = 6)
+jump.location = seq(0, 1, length.out = 7)[-7]
 
 registerDoMC(cores = 14)
 
