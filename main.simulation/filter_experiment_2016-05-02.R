@@ -3,14 +3,14 @@ rm(list=ls())
 setwd("..")
 source("source_header.R")
 
-sigma = 4
+sigma = 3.5
 n.length = 1
-n.vec = 5000
-trials = 50
-jump.mean = seq(0, 5, length.out = 6)
-jump.location = seq(0, 1, length.out = 7)[-7]
+n.vec = 1000
+trials = 25
+jump.mean =     c(0, 2,  4, 1, 4)
+jump.location = c(0, .2, .4, .6, .8)
 
-registerDoMC(cores = 14)
+registerDoMC(cores = 20)
 
 setup = list(sigma = sigma, n.vec = n.vec, jump.mean = jump.mean, 
   jump.location = jump.location)

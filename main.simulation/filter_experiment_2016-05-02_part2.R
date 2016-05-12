@@ -3,14 +3,18 @@ rm(list=ls())
 setwd("~/ryan/fused.git")
 source("source_header.R")
 
-sigma = 4
-n.length = 1
-n.vec = 5000
-trials = 50
-jump.mean = seq(0, 5, length.out = 6)
-jump.location = seq(0, 1, length.out = 7)[-7]
+#load in the thresholds
+load("~/ryan/fused.git/results/filterExperiment_2016-05-11.RData")
+filter.list = res$filter.list
 
-registerDoMC(cores = 16)
+sigma = res$setup$sigma
+n.length = 1
+n.vec = res$setup$n.vec
+trials = nrow(res$filter.list[[1]][[1]])
+jump.mean = res$setup$jump.mean
+jump.location = res$setup$jump.location
+
+registerDoMC(cores = 20)
 
 setup = list(sigma = sigma, n.vec = n.vec, jump.mean = jump.mean, 
   jump.location = jump.location)
@@ -38,10 +42,6 @@ for(i in 1:n.length){
   colnames(oracle.left.list[[i]]) = as.character(oracle.seq)
 }
 oracle.right.list = oracle.left.list
-
-#load in the thresholds
-load("~/ryan/fused.git/results/filterExperiment_2016-05-07.RData")
-filter.list = res$filter.list
 
 #run the simulations to see how the hausdorff distance is
 #WARNING: HAS BEEN CHANGED

@@ -81,14 +81,21 @@ plot.roc <- function(res, n.level = 1, plot.point = 0.95){
   #now compute the same for the actual estimated methods
   col.vec = rainbow(length(res$left.list))
 
-  for(j in 1:length(res$left.list)){
+  #WARNING!!
+  for(j in 1:1){
     meth.1 = apply(res$left.list[[j]][[n.level]], 2, mean, na.rm = T)
     meth.2 = apply(res$right.list[[j]][[n.level]], 2, mean, na.rm = T)
     meth.1 = meth.1/max1
     meth.2 = meth.2/max2
    
     if(is.na(plot.point)){
-      points(x = meth.1, y = 1 - meth.2, pch = 16, col = "red")
+      #select the best point
+      mat = cbind(meth.1, meth.2)
+      val = apply(mat, 1, function(x){sqrt(x[1]^2 + x[2]^2)})
+      idx = which.min(val)
+      print(names(meth.1)[idx])
+
+      points(x = meth.1[idx], y = 1 - meth.2[idx], pch = 16, col = col.vec[j])
     } else {
       idx = which(names(meth.1) == paste0(as.character(plot.point*100), "%"))
 
@@ -99,21 +106,7 @@ plot.roc <- function(res, n.level = 1, plot.point = 0.95){
   #plot the diagonal
   lines(x = c(0,1), y = c(0,1), lwd = 2, lty = 2)
 
+
+  invisible()
 }
 
-
-#WARNING: MESSY CODE!!
-library(assertthat)
-load("~/ryan/fused.git/results/filterExperiment_hausdorff_2016-05-08.RData")
-mat1 = res$oracle.left.list[[1]]
-mat2 = res$oracle.right.list[[1]]
-
-png(paste0("~/DUMP/Haus_", Sys.Date(), ".png"), height = 5, width = 5, 
- units = "in", res = 300)
-plot.hausdorff(mat1, mat2)
-dev.off()
-
-
-haus.res = res
-load("~/ryan/fused.git/results/filterExperiment_2016-05-02.RData")
-level.res = res

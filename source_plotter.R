@@ -14,13 +14,14 @@ plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty
 
 
 plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda, 
-                      num.est.jumps, mse = NA, tol = 1e-7,
+                      num.est.jumps = NA, mse = NA, tol = 1e-7,
                       filter.bandwidth = NA, plotDual = T){
   
   n = length(fit)
   true.seq = form.truth(jump.mean, jump.location, n)
   if(is.na(mse)) mse = compute.mse(fit, true.seq = true.seq)
-  
+  if(is.na(num.est.jumps)) num.est.jumps = length(enumerate.jumps(fit))
+ 
   par(mfrow=c(2,1),mar=c(1,1,1,1))
   
   plot(y, col=rgb(.5,.5,.5), pch=16, cex=1.25)
@@ -33,8 +34,9 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   } else {
     if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.25*log(n)^2)
     
+    #WARNING: make truebeta an option
     .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, 
-                 num.est.jumps, truebeta = truth)
+                 num.est.jumps)
   }
   
   invisible()
@@ -111,8 +113,10 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   
 }
 
+#WARNING: Fix the default for num.est.jumps
 .plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, 
-                         lambda, mse, num.est.jumps, truebeta = NA){
+                         lambda, mse, num.est.jumps = NA, truebeta = NA,
+                         verbose = F){
   n = length(fit)
   
   min.dif = min(abs(diff(jump.mean)))
@@ -122,13 +126,13 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   if(all(!is.na(truebeta))){
     truez = apply.filter(truebeta, filter.bandwidth, min.dif/2, 
                          return.type = "filter")
-    ylim = c(min(-min.dif, z, truez), max(min.dif, z, truez))
+    ylim = c(0, max(min.dif, z, truez))
     plot(truez, ylim = ylim, col = "green", pch = 16)
     
     points(z, col = "blue", pch = 16)
     
   } else {
-    ylim = c(min(-min.dif,z), max(min.dif,z))
+    ylim = c(0, max(min.dif,z))
     plot(z, ylim = ylim, col = "blue", pch = 16)
   }
   
@@ -162,12 +166,13 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   text(x=0, y=tmp.up, labels=as.character(tmp.up),col="red")
   text(x=0, y=tmp.down, labels=as.character(tmp.down),col="red")
   
-  
   #some basic text on the bottom (mse, lambda, n)
-  text(x = n, y = 0.7*min(z), labels = paste("MSE: ", round(mse,3), "\nLambda: ", round(lambda,2),
-                                      "\nnum.est.jumps: ", num.est.jumps, 
-                                      "\nFilter Width: ", filter.bandwidth, sep = ""), pos = 2, cex = 0.8)
-  
+  if(verbose){
+    text(x = n, y = 0.7*min(z), labels = paste("MSE: ", round(mse,3), "\nLambda: ", round(lambda,2),
+     "\nnum.est.jumps: ", num.est.jumps, 
+     "\nFilter Width: ", filter.bandwidth, sep = ""), pos = 2, cex = 0.8)
+  }
+
   invisible()
   
 }

@@ -15,6 +15,7 @@ source("source_filter_localpermute.R")
 source("source_filter_staircase.R")
 source("source_puffer.R")
 source("source_common.R")
+source("source_plotter_haus.R")
 
 set.seed(10)
 DATE = Sys.Date()
