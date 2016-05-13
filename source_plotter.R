@@ -1,13 +1,30 @@
 
-plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty = 1){
-  
+.plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty = 1,
+ plot.vertical = T){
+  assert_that(length(jump.location) == length(jump.mean))
+  assert_that(max(jump.location) < n)
+  assert_that(all(jump.location == sort(jump.location, decreasing = F)))
+  assert_that(jump.location[1] == 1)  
+
   len = length(jump.location)
   if(len>1){
     for(i in 1:(len-1)){
-      lines(x=c(jump.location[i],jump.location[i+1]),y=rep(jump.mean[i],2),col=col,lwd=lwd,lty=lty)
+      lines(x = c(jump.location[i], jump.location[i+1]), y = rep(jump.mean[i],2), 
+       col = col, lwd = lwd, lty = lty)
     }
   } 
-  lines(x=c(jump.location[len],n),y=rep(jump.mean[len],2),col=col,lwd=lwd,lty=lty)
+
+  #plot the vertical lines
+  if(plot.vertical){
+    for(i in 2:len){
+      lines(x = rep(jump.location[i], 2), y = c(jump.mean[i-1], jump.mean[i]),
+       col = col, lwd = lwd, lty = lty)
+    }
+  }
+
+  #plot the last segment
+  lines(x = c(jump.location[len],n), y = rep(jump.mean[len], 2), 
+   col = col, lwd = lwd, lty = lty)
   
   invisible()
 }
@@ -59,14 +76,14 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   #plot truth
   tmp = seq(0, 1,length.out = n)
   jump.location2 = .extract.location(jump.location, tmp)
-  plot.helper(jump.location2, jump.mean, n, col="red")
+  .plot.helper(jump.location2, jump.mean, n, col="red")
 
   tmpdiff = diff(fit) 
   tmpdiff[abs(tmpdiff)<tol] = 0
   res.jumploc = c(1,(which(abs(tmpdiff)>tol)))
   res.jumpmean = fit[res.jumploc+1]
   res.jumploc = sort(res.jumploc)
-  plot.helper(res.jumploc, res.jumpmean, n, col=rgb(0,1,0))
+  .plot.helper(res.jumploc, res.jumpmean, n, col=rgb(0,1,0))
   
   #put text up for a pseudo-y-axis
   tmp.up = round(median(y)+diff(range(y))*.4,2)

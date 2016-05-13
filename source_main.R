@@ -86,6 +86,14 @@ count.jumps <- function(fit, tol=1e-3){
   length(enumerate.jumps(fit, tol))
 }
 
+split.signal <- function(vec){
+  jumps = enumerate.jumps(vec, include.endpoints = T)
+  jumps = jumps[-length(jumps)]
+  val = vec[jumps]
+
+  list(location = jumps, mean = val)
+}
+
 form.truth <- function(jump.mean, jump.location, n){
   assert_that(min(jump.location)>=0)
   assert_that(max(jump.location)<=1)

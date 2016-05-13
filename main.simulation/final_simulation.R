@@ -4,10 +4,10 @@ setwd("~/ryan/fused.git/")
 source("source_header.R")
 
 #set up parameters
-sigma = 3.5
+sigma = 2
 n.length = 10
 n.vec = round(10^seq(2,4,length.out=n.length))
-trials = 25
+trials = 50
 jump.mean = c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
 haus.quant = 0.8
@@ -40,8 +40,12 @@ run.tests <- function(y, truth){
 
   #run the filter
   threshold = staircase.threshold(y, fit, filter.bandwidth, cv$lambda.min,
-   controls = list(type = "original", quant = 0.8))
-  jumps.adapt = apply.filter(fit, filter.bandwidth, threshold,
+   controls = list(type = "original", quant = seq(0, 1, length.out = 101)))
+
+  # do the 25% quant for now
+  idx = which(names(threshold) == "25%")
+
+  jumps.adapt = apply.filter(fit, filter.bandwidth, threshold[idx],
    return.type = "location")
   left.adapt = compute.hausdorff(true.jumps, jumps.adapt, one.sided = T)
   right.adapt = compute.hausdorff(jumps.adapt, true.jumps, one.sided = T)
@@ -49,17 +53,25 @@ run.tests <- function(y, truth){
   list(lambda = cv$lambda.min, mse = mse,
    left.org = left.org, right.org = right.org,
    left.oracle = left.oracle, right.oracle = right.oracle,
-   threshold = threshold, left.adapt = left.adapt, right.adapt = right.adapt)
+   left.adapt = left.adapt, right.adapt = right.adapt,
+   threshold = threshold)
 }
 
 #set up the matrices where we're going to store our results
-res.list = lapply(1:9, function(x){
+res.list = lapply(1:8, function(x){
   mat = matrix(0, ncol = n.length, nrow = trials)
   colnames(mat) = n.vec
   mat
 })
+res.list[[9]] = lapply(1:n.length, function(x){
+  mat = matrix(0, ncol = 101, nrow = trials)
+  colnames(mat) = seq(0, 1, length.out = 101)
+  mat
+})
+
 names(res.list) = c("lambda", "mse", "left.org", "right.org", "left.oracle",
-  "right.oracle", "threshold", "left.adapt", "right.adapt")
+  "right.oracle", "left.adapt", "right.adapt", "threshold")
+names(res.list[[9]]) = n.vec
 
 #run the simulations
 for(i in 1:length(n.vec)){
@@ -72,9 +84,10 @@ for(i in 1:length(n.vec)){
     res = run.tests(y, truth)
 
     #unpack the results
-    for(j in 1:length(res.list)){
+    for(j in 1:(length(res.list)-1)){
       res.list[[j]][trial,i] = res[[j]]
     }
+    res.list[[length(res.list)]][[i]][trial,] = res$threshold
 
     save.image(file = paste0("~/ryan/fused.git/results/final-", DATE, ".RData"))
   }
