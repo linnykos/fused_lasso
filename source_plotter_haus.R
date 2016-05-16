@@ -3,8 +3,10 @@ plot.hausdorff <- function(mat1, mat2){
   assert_that(ncol(mat2) == n)
 
   idx = which(apply(mat1, 2, function(x){all(is.na(x))}))
-  mat1 = mat1[,-idx]
-  mat2 = mat2[,-idx]
+  if(length(idx) > 0){
+    mat1 = mat1[,-idx]
+    mat2 = mat2[,-idx]  
+  }
 
   mean1 = apply(mat1, 2, mean, na.rm = T)
   mean2 = apply(mat2, 2, mean, na.rm = T)

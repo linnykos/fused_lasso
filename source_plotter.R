@@ -1,6 +1,6 @@
 
-.plot.helper <- function(jump.location, jump.mean, n, col = "black", lwd = 3, lty = 1,
- plot.vertical = T){
+.plot.helper <- function(jump.location, jump.mean, n, col = "black", 
+ lwd = 3, lty = 1, plot.vertical = T){
   assert_that(length(jump.location) == length(jump.mean))
   assert_that(max(jump.location) < n)
   assert_that(all(jump.location == sort(jump.location, decreasing = F)))
@@ -68,30 +68,34 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   jump.location2
 }
 
-.plot.primal <- function(jump.mean, jump.location, y, fit, tol){
+.plot.primal <- function(jump.mean = NA, jump.location = NA, y, 
+ fit, tol, truth = NA, verbose = T){
   n = length(y)
   
-  true.seq = form.truth(jump.mean, jump.location, n)
+  if(is.na(truth)){
+    true.seq = form.truth(jump.mean, jump.location, n)
   
-  #plot truth
-  tmp = seq(0, 1,length.out = n)
-  jump.location2 = .extract.location(jump.location, tmp)
-  .plot.helper(jump.location2, jump.mean, n, col="red")
+    #plot truth
+    tmp = seq(0, 1,length.out = n)
+    jump.location2 = .extract.location(jump.location, tmp)
+    .plot.helper(jump.location2, jump.mean, n, col = 2)
+  } else {
+    truth.split =  split.signal(truth)
+    .plot.helper(truth.split$location, truth.split$mean, n, col = 2)
+  }
 
-  tmpdiff = diff(fit) 
-  tmpdiff[abs(tmpdiff)<tol] = 0
-  res.jumploc = c(1,(which(abs(tmpdiff)>tol)))
-  res.jumpmean = fit[res.jumploc+1]
-  res.jumploc = sort(res.jumploc)
-  .plot.helper(res.jumploc, res.jumpmean, n, col=rgb(0,1,0))
+  res.split = split.signal(fit)
+  .plot.helper(res.split$location, res.split$mean, n, col = 3)
   
-  #put text up for a pseudo-y-axis
-  tmp.up = round(median(y)+diff(range(y))*.4,2)
-  tmp.down = round(median(y)-diff(range(y))*.4,2)
-  text(x=0, y=tmp.up, labels=as.character(tmp.up),col="red")
-  text(x=n, y=0, labels=as.character(0),col="red")
-  text(x=0, y=tmp.down, labels=as.character(tmp.down),col="red")
-  
+  if(verbose){
+    #put text up for a pseudo-y-axis
+    tmp.up = round(median(y)+diff(range(y))*.4,2)
+    tmp.down = round(median(y)-diff(range(y))*.4,2)
+    text(x=0, y=tmp.up, labels=as.character(tmp.up),col = 2)
+    text(x=n, y=0, labels=as.character(0),col = 2)
+    text(x=0, y=tmp.down, labels=as.character(tmp.down),col = 2)
+  }
+
   invisible()
 }
 

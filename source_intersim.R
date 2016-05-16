@@ -20,20 +20,22 @@
   int
 }
 
-lower.interpolant <- function(fit, truth){
+lower.interpolant <- function(fit, truth, include.demean = F){
   jumps = enumerate.jumps(truth, include.endpoints = T)
   z = rep(0, length(fit))
+  demeaned = z
 
   #compute the interpolant
   for(i in 1:(length(jumps)-1)){
 
     #first remove the mean
-    segment = fit[jumps[i]:(jumps[i]-1)]
-    demeaned = segment - mean(segment)
+    segment = fit[jumps[i]:(jumps[i+1]-1)]
+    demeaned[jumps[i]:(jumps[i+1]-1)] = segment - mean(segment)
 
-    z[jumps[i]:(jumps[i]-1)] = .lower.int(segment)
+    z[jumps[i]:(jumps[i+1]-1)] = .lower.int(demeaned[jumps[i]:(jumps[i+1]-1)])
   }
 
-  z
+  if(include.demean) list(lower.int = z, demeaned = demeaned) else z
 }
+
 
