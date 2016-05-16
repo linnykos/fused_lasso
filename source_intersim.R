@@ -21,12 +21,17 @@
 }
 
 lower.interpolant <- function(fit, truth){
-  res = fit - truth
-  z = res
   jumps = enumerate.jumps(truth, include.endpoints = T)
+  z = rep(0, length(fit))
 
+  #compute the interpolant
   for(i in 1:(length(jumps)-1)){
-    z[jumps[i]:(jumps[i]-1)] = .lower.int(res[jumps[i]:(jumps[i]-1)])
+
+    #first remove the mean
+    segment = fit[jumps[i]:(jumps[i]-1)]
+    demeaned = segment - mean(segment)
+
+    z[jumps[i]:(jumps[i]-1)] = .lower.int(segment)
   }
 
   z

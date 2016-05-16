@@ -10,7 +10,7 @@ n.vec = round(10^seq(2,4,length.out=n.length))
 trials = 50
 jump.mean = c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
-haus.quant = 0.8
+haus.quant = 0.85
 
 registerDoMC(cores = 20)
 
@@ -43,7 +43,7 @@ run.tests <- function(y, truth){
    controls = list(type = "original", quant = seq(0, 1, length.out = 101)))
 
   # do the 25% quant for now
-  idx = which(names(threshold) == "25%")
+  idx = which(names(threshold) == paste0(100*haus.quant, "%"))
 
   jumps.adapt = apply.filter(fit, filter.bandwidth, threshold[idx],
    return.type = "location")
