@@ -16,7 +16,7 @@ i = 5
 trial = 1
 
 truth = form.truth(jump.mean, jump.location, n.vec[i])
-set.seed(10)
+set.seed(i*trial*10)
 y = generate.problem(n.vec[i], jump.mean, jump.location, sigma)
 
 res = fusedlasso1d(y)

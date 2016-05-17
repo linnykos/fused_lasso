@@ -9,8 +9,8 @@
   len = length(jump.location)
   if(len>1){
     for(i in 1:(len-1)){
-      lines(x = c(jump.location[i], jump.location[i+1]), y = rep(jump.mean[i],2), 
-       col = col, lwd = lwd, lty = lty)
+      lines(x = c(jump.location[i], jump.location[i+1]), 
+       y = rep(jump.mean[i],2), col = col, lwd = lwd, lty = lty)
     }
   } 
 
@@ -32,16 +32,16 @@
 
 plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda, 
                       num.est.jumps = NA, mse = NA, tol = 1e-7,
-                      filter.bandwidth = NA, plotDual = T){
+                      filter.bandwidth = NA, threshold = NA, plotDual = T){
   
   n = length(fit)
   true.seq = form.truth(jump.mean, jump.location, n)
   if(is.na(mse)) mse = compute.mse(fit, true.seq = true.seq)
   if(is.na(num.est.jumps)) num.est.jumps = length(enumerate.jumps(fit))
  
-  par(mfrow=c(2,1),mar=c(1,1,1,1))
+  par(mfrow=c(2,1),mar=c(1,4,1,1))
   
-  plot(y, col=rgb(.5,.5,.5), pch=16, cex=1.25)
+  plot(y, col=rgb(.5,.5,.5), pch=16, cex=1.25, ylab = "Value")
 
   .plot.primal(jump.mean, jump.location, y, fit, tol)
   
@@ -53,7 +53,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
     
     #WARNING: make truebeta an option
     .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, 
-                 num.est.jumps)
+      threshold, num.est.jumps)
   }
   
   invisible()
@@ -69,7 +69,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
 }
 
 .plot.primal <- function(jump.mean = NA, jump.location = NA, y, 
- fit, tol, truth = NA, verbose = T){
+ fit, tol, truth = NA, verbose = F){
   n = length(y)
   
   if(is.na(truth)){
@@ -100,7 +100,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
 }
 
 .plot.dual <- function(jump.location, y, fit, lambda, 
-                       num.est.jumps, mse, tol){
+ num.est.jumps, mse, tol, verbose = F){
   tmp = fit-y
   z = cumsum(tmp)
   n = length(y)
@@ -127,69 +127,76 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   }
   
   #some basic text on the bottom (mse, lambda, n)
-  text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(mse,3)," // Lambda: ",round(lambda,2),
-                                      " // num.est.jumps: ",num.est.jumps, sep=""),pos=4)
-  
+  if(verobse){
+    text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(mse,3),
+     " // Lambda: ",round(lambda,2), " // num.est.jumps: ",
+     num.est.jumps, sep=""),pos=4)
+  }  
+
   invisible()
   
 }
 
 #WARNING: Fix the default for num.est.jumps
 .plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, 
-                         lambda, mse, num.est.jumps = NA, truebeta = NA,
-                         verbose = F){
+ lambda, mse, threshold = NA, num.est.jumps = NA, truebeta = NA, verbose = F){
+
   n = length(fit)
   
-  min.dif = min(abs(diff(jump.mean)))
+  if(is.na(threshold)) threshold = min(abs(diff(jump.mean)))/2
   
-  z = apply.filter(fit, filter.bandwidth, min.dif/2, return.type = "filter")
-  
+  z = apply.filter(fit, filter.bandwidth, threshold, return.type = "filter")
+ 
+  #plot the filter values of the true beta
   if(all(!is.na(truebeta))){
-    truez = apply.filter(truebeta, filter.bandwidth, min.dif/2, 
-                         return.type = "filter")
-    ylim = c(0, max(min.dif, z, truez))
-    plot(truez, ylim = ylim, col = "green", pch = 16)
+    truez = apply.filter(truebeta, filter.bandwidth, threshold, 
+     return.type = "filter")
+    ylim = c(0, max(threshold, z, truez))
+    plot(truez, ylim = ylim, col = 3, pch = 16, ylab = "Filter Value")
     
-    points(z, col = "blue", pch = 16)
+    points(z, col = 4, pch = 16)
     
   } else {
-    ylim = c(0, max(min.dif,z))
-    plot(z, ylim = ylim, col = "blue", pch = 16)
+    ylim = c(0, max(threshold,z))
+    plot(z, ylim = ylim, col = 4, pch = 16, cex = 1.5, ylab = "Filter Value")
+
+    lines(z, col = 4, lwd = 2)
   }
-  
-  
-  lines(x = c(-n, 2*n), y = rep(-min.dif/2, 2), lty = 2, lwd = 2, col = "red")
-  lines(x = c(-n, 2*n), y = rep(min.dif/2, 2), lty = 2, lwd = 2, col = "red")
-  lines(x = c(-n, 2*n), y = rep(0, 2), lty = 2, lwd = 2, col = "red")
-  
+    
+  lines(x = c(-n, 2*n), y = rep(threshold, 2), lty = 2, lwd = 2, col = 2)
+ 
   n = length(fit)
   #plot the filtered jump locations
-  jump.filter = apply.filter(fit, filter.bandwidth, min.dif/2, return.type = "location")
+  jump.filter = apply.filter(fit, filter.bandwidth, threshold, 
+   return.type = "location")
   max.bound = max(abs(z))
   
   for(i in 1:length(jump.filter)){
     lines(x = rep(jump.filter[i],2), y = c(-5*max.bound, 5*max.bound))
   }
   
-  
   #plot the true jump locations
   tmp = seq(0, 1,length.out = n)
   jump.location2 = .extract.location(jump.location, tmp)
   
   for(i in 1:length(jump.location2)){
-    lines(x = rep(jump.location2[i],2),y = c(-5*max.bound, 5*max.bound), lty = 2, 
-          lwd = 2, col = "red")
+    lines(x = rep(jump.location2[i],2),y = c(-5*max.bound, 5*max.bound), 
+     lty = 2, lwd = 2, col = 2)
   }
   
   #put text up for a pseudo-y-axis
   tmp.up = round(median(z)+diff(range(z))*.4, 2)
   tmp.down = round(median(z)-diff(range(z))*.4, 2)
-  text(x=0, y=tmp.up, labels=as.character(tmp.up),col="red")
-  text(x=0, y=tmp.down, labels=as.character(tmp.down),col="red")
-  
+
+  if(verbose){
+    text(x = 0, y = tmp.up, labels = as.character(tmp.up), col = 2)
+    text(x = 0, y = tmp.down, labels = as.character(tmp.down),col = 2)
+  }  
+
   #some basic text on the bottom (mse, lambda, n)
   if(verbose){
-    text(x = n, y = 0.7*min(z), labels = paste("MSE: ", round(mse,3), "\nLambda: ", round(lambda,2),
+    text(x = n, y = 0.7*min(z), labels = paste("MSE: ", round(mse,3), 
+     "\nLambda: ", round(lambda,2),
      "\nnum.est.jumps: ", num.est.jumps, 
      "\nFilter Width: ", filter.bandwidth, sep = ""), pos = 2, cex = 0.8)
   }

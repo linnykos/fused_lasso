@@ -24,8 +24,13 @@ run.test <- function(y, truth, trial){
   oracle.right = oracle.left
   adapt.left = oracle.left
   adapt.right = oracle.left
+  oracle.truepos = oracle.left
+  oracle.falsepos = oracle.left
+  adapt.truepos = oracle.left
+  adapt.falsepos = oracle.left
 
   for(k in 1:length(oracle.seq)){
+    #compute oracle hausdorff
     jumps = apply.filter(fit, filter.bandwidth,
      oracle.seq[k], return.type = "location")
     oracle.left[k] = compute.hausdorff(true.jumps,
@@ -33,12 +38,20 @@ run.test <- function(y, truth, trial){
     oracle.right[k] = compute.hausdorff(jumps,
      true.jumps, one.sided = T)
 
+    #compute oracle classification
+    class.res = classification.quality(true.jumps, jumps, bandwidth, n)
+    oracle.truepos[k] = class.res$true.pos
+    oracle.falsepos[k] = class.res$false.pos
+
+    #compute data-driven hausdorff
     jumps = apply.filter(fit, filter.bandwidth,
      filter.mat[trial,k], return.type = "location")
     adapt.left[k] = compute.hausdorff(true.jumps,
      jumps, one.sided = T)
     adapt.right[k] = compute.hausdorff(jumps,
      true.jumps, one.sided = T)
+
+    #compute data-driven classification
   }
 
   list(oracle.left = oracle.left, oracle.right = oracle.right,
