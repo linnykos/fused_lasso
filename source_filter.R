@@ -60,17 +60,17 @@ bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50, q
 classification.quality <- function(true.jumps, estimate.jumps, bandwidth, n){
   #create the augmented set of the true.jumps
   aug.set = function(set){
-   unique(sapply(set, function(x){
+   unique(as.numeric(unlist(sapply(set, function(x){
     c(max(1, x-bandwidth):min(n, x+bandwidth))
-   }))
+   }))))
   }
 
-  true.neg = diff(n, aug.set(true.jumps)) #the set of points not close to a true changepoints
+  true.neg = setdiff(1:n, aug.set(true.jumps)) #the set of points not close to a true changepoints
   est.pos = aug.set(estimate.jumps) #the set of points close to an estimate changepoint
 
   #see how many estimated jumps are in the aug.set
-  false.pos.ind = if(all(!(true.neg %in% estimate.jumps))) #is there a true negative in the set of est. jumps
-  true.pos.ind = if(all(true.jumps %in% est.pos)) #are all true jumps accounted for
+  false.pos.ind = any(true.neg %in% estimate.jumps) #is there a true negative in the set of est. jumps
+  true.pos.ind = all(true.jumps %in% est.pos) #are all true jumps accounted for
 
   list(true.pos = true.pos.ind, false.pos = false.pos.ind)
 }

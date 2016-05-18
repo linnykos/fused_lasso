@@ -20,51 +20,29 @@ run.test <- function(y, truth, trial){
   filter.bandwidth = ceiling(0.25*(log(n))^2)
   true.jumps = enumerate.jumps(truth)
 
-  oracle.left = numeric(length(oracle.seq))
-  oracle.right = oracle.left
-  adapt.left = oracle.left
-  adapt.right = oracle.left
-  oracle.truepos = oracle.left
-  oracle.falsepos = oracle.left
-  adapt.truepos = oracle.left
-  adapt.falsepos = oracle.left
+  jumps.org = enumerate.jumps(fit)
+
+  jumps.oracle.list = vector("list", length(oracle.seq))
+  jumps.adapt.list = vector("list", length(oracle.seq))
 
   for(k in 1:length(oracle.seq)){
-    #compute oracle hausdorff
-    jumps = apply.filter(fit, filter.bandwidth,
+    jumps.oracle.list[[k]] = apply.filter(fit, filter.bandwidth,
      oracle.seq[k], return.type = "location")
-    oracle.left[k] = compute.hausdorff(true.jumps,
-     jumps, one.sided = T)
-    oracle.right[k] = compute.hausdorff(jumps,
-     true.jumps, one.sided = T)
 
-    #compute oracle classification
-    class.res = classification.quality(true.jumps, jumps, bandwidth, n)
-    oracle.truepos[k] = class.res$true.pos
-    oracle.falsepos[k] = class.res$false.pos
-
-    #compute data-driven hausdorff
-    jumps = apply.filter(fit, filter.bandwidth,
+    jumps.adapt.list[[k]] = apply.filter(fit, filter.bandwidth,
      filter.mat[trial,k], return.type = "location")
-    adapt.left[k] = compute.hausdorff(true.jumps,
-     jumps, one.sided = T)
-    adapt.right[k] = compute.hausdorff(jumps,
-     true.jumps, one.sided = T)
-
-    #compute data-driven classification
   }
 
-  list(oracle.left = oracle.left, oracle.right = oracle.right,
-   adapt.left = adapt.left, adapt.right = adapt.right)
+  list(jumps.org = jumps.org, jumps.oracle.list = jumps.oracle.list, 
+   jumps.adapt.list = jumps.adapt.list)
 }
 
-res.list = vector("list", 4)
-names(res.list) = c("oracle.left", "oracle.right", "adapt.left", "adapt.right")
-for(k in 1:4){
-  res.list[[k]] = matrix(0, ncol = length(oracle.seq), nrow = trials)
-
-  if(k == 1 | k == 2) colnames(res.list[[k]]) = oracle.seq else
-    colnames(res.list[[k]]) = paste0(colnames(filter.mat), "%")
+res.list = vector("list", 3)
+names(res.list) = c("jumps.org", "jumps.oracle.list", "jumps.adapt.list")
+res.list[[1]] = vector("list", trials)
+for(k in 2:3){
+  res.list[[k]] = vector("list", length(oracle.seq))
+  for(j in 1:length(oracle.seq)) res.list[[k]][[j]] = vector("list", trials)
 }
 
 #run the simulations
@@ -77,9 +55,13 @@ for(trial in 1:trials){
   res = run.test(y, truth, trial)
 
   #unpack the results
-  for(k in 1:4) res.list[[k]][trial,] = res[[k]]
+  res.list[[1]][[trial]] = res$jumps.org
+  for(k in 1:length(oracle.seq)){
+    res.list[[2]][[k]][[trial]] = res$jumps.oracle.list[[k]]
+    res.list[[3]][[k]][[trial]] = res$jumps.adapt.list[[k]]
+  }
 
-  save.image(file = paste0("~/ryan/fused.git/results/final-ROC2-", DATE, ".RData"))
+  save.image(file = paste0("~/ryan/fused.git/results/final-ROC2-", Sys.Date(), ".RData"))
  
 }
 

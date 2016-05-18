@@ -49,7 +49,7 @@ for(trial in 1:trials){
   #unpack the results
   filter.mat[trial,] = res
 
-  save.image(file = paste0("~/ryan/fused.git/results/final-ROC-", DATE, ".RData"))
+  save.image(file = paste0("~/ryan/fused.git/results/final-ROC-", Sys.Date(), ".RData"))
  
 }
 
