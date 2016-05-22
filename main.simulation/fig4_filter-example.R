@@ -17,8 +17,11 @@ fit = coef(res, lambda = cv$lambda.1se)$beta
 
 threshold = filter.mat[1,which(colnames(filter.mat) == paste0(haus.quant))]
 
-png(file = paste0("~/DUMP/filter-example-", Sys.Date(), ".png"), width = 6,
- height = 4, units = "in", res = 300)
+#png(file = paste0("~/DUMP/filter-example-", Sys.Date(), ".png"), width = 6,
+# height = 4, units = "in", res = 300)
+pdf(file = paste0("~/DUMP/filter-example-", Sys.Date(), ".pdf"), width = 6,
+  height = 4)
+
 
 plotfused(jump.mean, jump.location, y, fit, truth = truth,
   filter.bandwidth = ceiling(0.25*log(n.vec[i])^2), threshold = 

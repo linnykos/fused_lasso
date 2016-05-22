@@ -1,7 +1,5 @@
 rm(list=ls())
-load("~/ryan/fused.git/results/final-ROC2-2016-05-13.RData")
-setwd("~/ryan/fused.git/")
-source("source_header.R")
+load("~/ryan/fused.git/results/final-ROC2-2016-05-21.RData")
 
 n = n.vec[i]
 filter.bandwidth = ceiling(0.25*(log(n))^2)

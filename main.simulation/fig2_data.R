@@ -10,8 +10,11 @@ trials = 50
 jump.mean = c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
 
-png(file = paste0("~/DUMP/data-", Sys.Date(), ".png"), width = 9,
- height = 2.5, units = "in", res = 300)
+#png(file = paste0("~/DUMP/data-", Sys.Date(), ".png"), width = 9,
+# height = 2.5, units = "in", res = 300)
+pdf(file = paste0("~/DUMP/data-", Sys.Date(), ".pdf"), width = 9,
+  height = 2.5)
+
 par(mfcol = c(1,2))
 par(mar = c(2,4,1,1))
 

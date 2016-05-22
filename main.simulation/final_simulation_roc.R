@@ -7,7 +7,7 @@ source("source_header.R")
 sigma = 2
 n.length = 10
 n.vec = round(10^seq(2,4,length.out=n.length))
-trials = 100
+trials = 500
 jump.mean = c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
 haus.quant = 0.8
@@ -28,7 +28,7 @@ run.test <- function(y, truth){
   filter.quant = staircase.threshold(y, fit,
    filter.bandwidth, cv$lambda.1se, controls = list(type =
     "original", quant = seq(0, 1, length.out = 101), 
-    trials = 200))
+    trials = 500))
 
   filter.quant
 }

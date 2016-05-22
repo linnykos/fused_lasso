@@ -48,8 +48,11 @@ fit2 = coef(res2, lambda = cv2$lambda.1se)$beta
 interpolant2 = lower.interpolant(fit2, truth2, include.demean = T)
 
 #form the figure
-png(file = paste0("~/DUMP/interpsim-", Sys.Date(), ".png"), width = 9, 
- height = 5, units = "in", res = 300)
+#png(file = paste0("~/DUMP/interpsim-", Sys.Date(), ".png"), width = 9, 
+# height = 5, units = "in", res = 300)
+pdf(file = paste0("~/DUMP/interpsim-", Sys.Date(), ".pdf"), width = 9,
+  height = 5)
+
 par(mfcol = c(2,2))
 par(mar = c(2,4,1,1))
 
@@ -93,8 +96,6 @@ for(i in 2:length(truth2.split$location)){
 
 .plot.helper(res2.split$location, res2.split$mean, n, col = 3)
 .plot.helper(int2.split$location, int2.split$mean, n, lty = 2)
-
-
 
 
 dev.off()

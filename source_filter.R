@@ -6,23 +6,11 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
   
   jump.loc = enumerate.jumps(fit)
 
-  z = sapply((bandwidth+1):(n-bandwidth+1), function(x){
-    abs(mean(fit[x:(x+bandwidth-1)]) - mean(fit[(x-bandwidth):(x-1)]))
-  })
-  
-  #pad the z's
-  z = c(rep(0, bandwidth), z, rep(0, bandwidth-1))
+  z =  .compute.filter(fit, bandwidth)
+
   if(return.type == "filter") return(z)
   
-  z.thresIdx = which(abs(z) >= threshold)
- 
-  #WARNING: check this
-  jump.loc2 = c(jump.loc, jump.loc-bandwidth, jump.loc+bandwidth-1)
-  jump.loc2 = jump.loc2[which(jump.loc2>0)]
-  jump.loc2 = jump.loc2[which(jump.loc2<=n)]
-  jump.loc2 = sort(unique(jump.loc2))
- 
-  jump.remain = intersect(jump.loc2, z.thresIdx)
+  jump.remain = .compute.candidatejumps(threshold, z, jump.loc, bandwidth, n)
   if(return.type == "location") return(jump.remain)
   
   #WARNING: fix this so its a refit of fused lasso
@@ -33,6 +21,47 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
   
   return(refit)
 }
+
+.compute.filter <- function(fit, bandwidth){
+  n = length(fit)
+
+  z = sapply((bandwidth+1):(n-bandwidth+1), function(x){
+    abs(mean(fit[x:(x+bandwidth-1)]) - mean(fit[(x-bandwidth):(x-1)]))
+  })
+
+  #pad the z's
+  z = c(rep(0, bandwidth), z, rep(0, bandwidth-1))
+
+  z
+}
+
+.compute.candidatejumps <- function(threshold, filter.values, jump.location, bandwidth, n){
+  #WARNING: Check this
+  jump.loc2 = c(jump.location, jump.location-bandwidth, jump.location+bandwidth-1)
+  jump.loc2 = jump.loc2[which(jump.loc2>0)]
+  jump.loc2 = jump.loc2[which(jump.loc2<=n)]
+  jump.loc2 = sort(unique(jump.loc2))
+
+  filtered.idx = which(abs(filter.values) >= threshold)
+
+  intersect(jump.loc2, filtered.idx)
+}
+
+oracle.threshold <- function(fit, bandwidth, truth, threshold.seq = seq(0, 2, length.out = 101)){
+  n = length(fit)
+  z = .compute.filter(fit, bandwidth)
+
+  jump.loc = enumerate.jumps(fit)
+  true.jumps = enumerate.jumps(truth)
+
+  haus.vec = sapply(threshold.seq, function(x){
+    jumps.oracle = .compute.candidatejumps(x, z, jump.loc, bandwidth, n)
+    compute.hausdorff(true.jumps, jumps.oracle)
+  })
+
+  threshold.seq[which.min(haus.vec)]
+}
+
 
 #bootstrap the residuals, used fused lasso on the residuals and record filter value to kill the jumps
 bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50, quant = 0.95){
