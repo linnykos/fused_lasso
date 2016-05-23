@@ -3,7 +3,7 @@ rm(list=ls())
 setwd("~/ryan/fused.git/")
 source("source_header.R")
 
-load("~/ryan/fused.git/results/final-ROC-2016-05-21.RData")
+load("results/final-ROC-2016-05-21.RData")
 
 registerDoMC(cores = 20)
 
@@ -61,7 +61,7 @@ for(trial in 1:trials){
     res.list[[3]][[k]][[trial]] = res$jumps.adapt.list[[k]]
   }
 
-  save.image(file = paste0("~/ryan/fused.git/results/final-ROC2-", Sys.Date(), ".RData"))
+  save.image(file = paste0("results/final-ROC2-", Sys.Date(), ".RData"))
  
 }
 

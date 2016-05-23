@@ -1,4 +1,6 @@
-load("~/ryan/fused.git/results/final-2016-05-22.RData")
+setwd("~/ryan/fused.git")
+
+load("results/final-2016-05-22.RData")
 library(assertthat)
 
 
@@ -30,9 +32,7 @@ library(assertthat)
 }
 
 
-#png(file = paste0("~/DUMP/rates-", Sys.Date(), ".png"), width = 9,
-#  height = 4, units = "in", res = 300)
-pdf(file = paste0("~/DUMP/rates-", Sys.Date(), ".pdf"), width = 9,
+pdf(file = paste0("plots/rates-", Sys.Date(), ".pdf"), width = 9,
   height = 4)
 par(mfrow = c(1,2))
 par(mar = c(4,6,4,1))

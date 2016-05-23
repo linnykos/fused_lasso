@@ -1,5 +1,5 @@
-rm(list=ls())
-load("~/ryan/fused.git/results/final-ROC2-2016-05-21.RData")
+setwd("~/ryan/fused.git")
+load("results/final-ROC2-2016-05-21.RData")
 
 n = n.vec[i]
 filter.bandwidth = ceiling(0.25*(log(n))^2)
@@ -54,9 +54,7 @@ for(i in 1:4){
   class.vec[i,] = apply(class.mat[[i]], 2, mean, na.rm = T)
 }
 
-#png(paste0("~/DUMP/ROC_", Sys.Date(), ".png"), height = 3, width = 9,
-# units = "in", res = 300)
-pdf(paste0("~/DUMP/ROC_", Sys.Date(), ".pdf"), height = 3, width = 9)
+pdf(paste0("plots/ROC_", Sys.Date(), ".pdf"), height = 3, width = 9)
 
 
 par(mfrow = c(1,3))

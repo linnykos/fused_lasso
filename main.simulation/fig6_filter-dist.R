@@ -1,6 +1,6 @@
-rm(list=ls())
-load("~/ryan/fused.git/results/final-ROC2-2016-05-21.RData")
 setwd("~/ryan/fused.git/")
+
+load("results/final-ROC2-2016-05-21.RData")
 source("source_header.R")
 
 left.mat = matrix(0, ncol = length(oracle.seq), nrow = trials)
@@ -16,9 +16,7 @@ for(i in 1:length(oracle.seq)){
   }
 }
 
-#png(paste0("~/DUMP/Haus_", Sys.Date(), ".png"), height = 5, width = 5,
-# units = "in", res = 300)
-pdf(paste0("~/DUMP/Haus_", Sys.Date(), ".pdf"), height = 5, width = 5)
+pdf(paste0("plots/Haus_", Sys.Date(), ".pdf"), height = 5, width = 5)
 
 plot.hausdorff(left.mat, right.mat)
 

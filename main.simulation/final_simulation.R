@@ -92,7 +92,7 @@ for(i in 1:length(n.vec)){
     }
     res.list[[length(res.list)]][[i]][trial,] = res[[length(res.list)]]
 
-    save.image(file = paste0("~/ryan/fused.git/results/final-", Sys.Date(), ".RData"))
+    save.image(file = paste0("results/final-", Sys.Date(), ".RData"))
   }
 }
 

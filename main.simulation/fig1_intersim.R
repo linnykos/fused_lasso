@@ -48,9 +48,7 @@ fit2 = coef(res2, lambda = cv2$lambda.1se)$beta
 interpolant2 = lower.interpolant(fit2, truth2, include.demean = T)
 
 #form the figure
-#png(file = paste0("~/DUMP/interpsim-", Sys.Date(), ".png"), width = 9, 
-# height = 5, units = "in", res = 300)
-pdf(file = paste0("~/DUMP/interpsim-", Sys.Date(), ".pdf"), width = 9,
+pdf(file = paste0("plots/interpsim-", Sys.Date(), ".pdf"), width = 9,
   height = 5)
 
 par(mfcol = c(2,2))
