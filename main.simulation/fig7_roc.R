@@ -54,8 +54,11 @@ for(i in 1:4){
   class.vec[i,] = apply(class.mat[[i]], 2, mean, na.rm = T)
 }
 
-png(paste0("~/DUMP/ROC_", Sys.Date(), ".png"), height = 3, width = 9,
- units = "in", res = 300)
+#png(paste0("~/DUMP/ROC_", Sys.Date(), ".png"), height = 3, width = 9,
+# units = "in", res = 300)
+pdf(paste0("~/DUMP/ROC_", Sys.Date(), ".pdf"), height = 3, width = 9)
+
+
 par(mfrow = c(1,3))
 
 #plot 1: of hausdorff distance
