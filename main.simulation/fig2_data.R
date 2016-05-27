@@ -26,10 +26,10 @@ for(i in i.vec){
   set.seed(i*trial*10)
   y = generate.problem(n.vec[i], jump.mean, jump.location,  sigma)
 
-  plot(y, col=rgb(.5,.5,.5), pch=16, cex=1.25, ylab = "Value")
+  plot(y, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "")
 
   truth.split = split.signal(truth)
-  .plot.helper(truth.split$location, truth.split$mean, n.vec[i], col = 3)
+  .plot.helper(truth.split$location, truth.split$mean, n.vec[i], col = 2)
 }
 
 dev.off()

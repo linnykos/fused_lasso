@@ -38,15 +38,15 @@ thres.list.lower[[2]] = sapply(1:length(res.list$threshold.adapt), function(x){
 })
 
 
-pdf(file = paste0("plots/haus-dist-", Sys.Date(), ".pdf"), width = 9,
- height = 3)
+pdf(file = paste0("plots/haus-dist-", Sys.Date(), ".pdf"), width = 7.25,
+ height = 2.5)
 
 par(mar = c(4,4,1,1))
 par(mfrow = c(1,3))
 
 #plot the hausdorff
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[1]]$upper)),
-  xlab = "Number of observations", ylab = "Hausdorff Distance")
+  xlab = "n", ylab = "Hausdorff distance")
 
 col.vec = c(1, 2, 4)
 lty.vec = c(3, 1, 2)
@@ -63,13 +63,13 @@ for(i in 1:3){
   }
 }
 
-legend("topleft", c("Original", "Reduced - Oracle", "Reduced - Data"),
+legend("topleft", c("Original", "Reduced, oracle", "Reduced, data-driven"),
  col = col.vec, lty = lty.vec, lwd = 2, bty = "n")
 
 
 #plot the hausdorff zoom-up
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[3]]$upper)),
-  xlab = "Number of observations", ylab = "Hausdorff Distance")
+  xlab = "n", ylab = "Hausdorff distance")
 
 for(i in 2:3){
   points(x = n.vec, y = haus.list[[i]]$med, pch = 16, col = col.vec[i],
@@ -83,7 +83,7 @@ for(i in 2:3){
   }
 }
 
-legend("topright", c("Reduced - Oracle", "Reduced - Data"),
+legend("topright", c("Reduced, oracle", "Reduced, data-driven"),
  col = col.vec[2:3], lty = lty.vec[2:3], lwd = 2, bty = "n")
 
 
@@ -92,7 +92,7 @@ col.vec = c(2, 4)
 lty.vec = c(1,2)
 
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(unlist(thres.list.upper))),
-  xlab = "Number of Observations", ylab = "Threshold Value")
+  xlab = "n", ylab = "Threshold")
 
 for(i in 1:2){
   points(x = n.vec, y = thres.list[[i]], pch = 16, col = col.vec[i], cex = 2)
@@ -105,7 +105,7 @@ for(i in 1:2){
   }
 }
 
-legend("topright", c("Oracle", "Data-Driven"),
+legend("topright", c("Oracle", "Data-driven"),
  col = col.vec, lwd = 2, bty = "n")
 
 

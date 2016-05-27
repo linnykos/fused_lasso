@@ -31,7 +31,7 @@ plot.hausdorff <- function(mat1, mat2, same.axis = T){
   
   plot(x = x.axs, y = med2, ylim = if(same.axis) ylim else ylim2, 
     pch = 16, cex = 1.5, 
-    col = 2, xlab = "Filter Threshold Value",
+    col = 2, xlab = "Filter threshold",
     ylab = if(same.axis) "Changepoint distance" else "", 
     yaxt = if(same.axis) NULL else "n")
   for(i in 1:n){
@@ -41,7 +41,7 @@ plot.hausdorff <- function(mat1, mat2, same.axis = T){
   
   if(!same.axis){
     axis(2, ylim = ylim2, col.axis = 2, col.ticks = 2)
-    mtext("Distance from Estimate to Truth", side = 2, col = 2, line = 2.5)
+    mtext("Distance from estimate to truth", side = 2, col = 2, line = 2.5)
 
     #start the next plot
     par(new = T)
@@ -50,7 +50,7 @@ plot.hausdorff <- function(mat1, mat2, same.axis = T){
      xlab = "", xaxt = 'n', ylab = "", yaxt = 'n')
 
     axis(4, ylim = ylim1)
-    mtext("Haus. Distance from Truth to Estimate", side = 4, line = 2.5)	
+    mtext("Distance from truth to estimate", side = 4, line = 2.5)	
 
   } else {
     points(x = x.axs, y = med1, pch = 16, cex = 1.5)
@@ -63,7 +63,7 @@ plot.hausdorff <- function(mat1, mat2, same.axis = T){
 
   #put legend
   if(same.axis){
-    legend("topleft", c("From Est. to Truth", "From Truth to Est."),
+    legend("topleft", c("From estimate to truth", "From truth to estimate"),
       col = c(2,1), lwd = 2, bty = "n")
   }
 

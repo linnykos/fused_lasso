@@ -55,13 +55,12 @@ for(i in 1:4){
 }
 
 pdf(paste0("plots/ROC_", Sys.Date(), ".pdf"), height = 3, width = 9)
-
-
+par(mar = c(4,4,1,1))
 par(mfrow = c(1,3))
 
 #plot 1: of hausdorff distance
 plot(x = haus.vec[1,], y = haus.vec[2,], pch = 16,
-  xlab = "Haus. Dist. from Truth to Est.", ylab = "Haus. Dist. from Est. to Truth")
+  xlab = "Haus. dist. from truth to est.", ylab = "Haus. dist. from est. to truth")
 lines(x = haus.vec[1,], y = haus.vec[2,], lwd = 2)
 
 lines(x = haus.vec[3,], y = haus.vec[4,], lwd = 2, lty = 2, col = 2)
@@ -71,7 +70,7 @@ points(x = haus.vec[3,idx], y = haus.vec[4,idx], pch = 16, cex = 2, col = 2)
 
 #plot 2: of classification
 plot(x = class.vec[2,], y = class.vec[1,], pch = 16,
-  ylab = "% of All True Changepoints Detected", xlab = "% of At Least One False Changepoint Detected")
+  ylab = "% of all true changepoints detected", xlab = "% of at least one false changepoint detected")
 lines(x = class.vec[2,], y = class.vec[1,], lwd = 2)
 
 lines(x = class.vec[4,], y = class.vec[3,], lwd = 2, lty = 2, col = 2)
@@ -80,8 +79,8 @@ idx = which(colnames(filter.mat) == "0.95")
 points(x = class.vec[4,idx], y = class.vec[3,idx], pch = 16, cex = 2, col = 2)
 
 #plot 3: of the proportion
-plot(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], pch = 16,  xlab = 
-  "Filter Quantile Cutoff", ylab = "% of No False Changepoint Detected")
+plot(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], pch = 16,  
+ xlab = "Filter quantile cutoff", ylab = "% of no false changepoint detected")
 lines(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], lwd = 2)
 lines(x = c(0,1), y = c(0,1), lty = 2, lwd = 2)
 
