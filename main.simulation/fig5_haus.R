@@ -48,7 +48,7 @@ par(mfrow = c(1,3))
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[1]]$upper)),
   xlab = "n", ylab = "Hausdorff distance")
 
-col.vec = c(1, 2, 4)
+col.vec = c(1, 2, 3)
 lty.vec = c(3, 1, 2)
 
 for(i in 1:3){
@@ -88,7 +88,7 @@ legend("topright", c("Reduced, oracle", "Reduced, data-driven"),
 
 
 #plot the threshold values
-col.vec = c(2, 4)
+col.vec = c(2, 3)
 lty.vec = c(1,2)
 
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(unlist(thres.list.upper))),
@@ -106,7 +106,7 @@ for(i in 1:2){
 }
 
 legend("topright", c("Oracle", "Data-driven"),
- col = col.vec, lwd = 2, bty = "n")
+ col = col.vec, lwd = 2, lty = c(1,2), bty = "n")
 
 
 dev.off()
