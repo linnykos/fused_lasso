@@ -54,13 +54,14 @@ for(i in 1:4){
   class.vec[i,] = apply(class.mat[[i]], 2, mean, na.rm = T)
 }
 
-pdf(paste0("plots/ROC_", Sys.Date(), ".pdf"), height = 3, width = 9)
+pdf(paste0("plots/ROC_", Sys.Date(), ".pdf"), height = 2.5, width = 7.5)
 par(mar = c(4,4,1,1))
 par(mfrow = c(1,3))
 
 #plot 1: of hausdorff distance
 plot(x = haus.vec[1,], y = haus.vec[2,], pch = 16,
-  xlab = "Haus. dist. from truth to est.", ylab = "Haus. dist. from est. to truth")
+  xlab = "Haus. dist. from truth to est.", 
+  ylab = "Haus. dist. from est. to truth", cex.axis = 1.25, cex.lab = 1.25)
 lines(x = haus.vec[1,], y = haus.vec[2,], lwd = 2)
 
 lines(x = haus.vec[3,], y = haus.vec[4,], lwd = 2, lty = 2, col = 2)
@@ -70,7 +71,9 @@ points(x = haus.vec[3,idx], y = haus.vec[4,idx], pch = 16, cex = 2, col = 2)
 
 #plot 2: of classification
 plot(x = class.vec[2,], y = class.vec[1,], pch = 16,
-  ylab = "% of all true changepoints detected", xlab = "% of at least one false changepoint detected")
+  ylab = "% of all true jumps detected", 
+  xlab = "% of one+ false jumps detected", cex.axis = 1.25,
+  cex.lab = 1.25)
 lines(x = class.vec[2,], y = class.vec[1,], lwd = 2)
 
 lines(x = class.vec[4,], y = class.vec[3,], lwd = 2, lty = 2, col = 2)
@@ -80,7 +83,8 @@ points(x = class.vec[4,idx], y = class.vec[3,idx], pch = 16, cex = 2, col = 2)
 
 #plot 3: of the proportion
 plot(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], pch = 16,  
- xlab = "Filter quantile cutoff", ylab = "% of no false changepoint detected")
+ xlab = "Filter quantile cutoff", ylab = "% of no false jump detected",
+ cex.lab = 1.25, cex.axis = 1.25)
 lines(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], lwd = 2)
 lines(x = c(0,1), y = c(0,1), lty = 2, lwd = 2)
 

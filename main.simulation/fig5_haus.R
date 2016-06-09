@@ -38,7 +38,7 @@ thres.list.lower[[2]] = sapply(1:length(res.list$threshold.adapt), function(x){
 })
 
 
-pdf(file = paste0("plots/haus-dist-", Sys.Date(), ".pdf"), width = 7.25,
+pdf(file = paste0("plots/haus-dist-", Sys.Date(), ".pdf"), width = 7.5,
  height = 2.5)
 
 par(mar = c(4,4,1,1))
@@ -46,9 +46,9 @@ par(mfrow = c(1,3))
 
 #plot the hausdorff
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[1]]$upper)),
-  xlab = "n", ylab = "Hausdorff distance")
+  xlab = "n", ylab = "Hausdorff distance", cex.axis = 1.25, cex.lab = 1.25)
 
-col.vec = c(1, 2, 3)
+col.vec = c(1, 2, "blue2")
 lty.vec = c(3, 1, 2)
 
 for(i in 1:3){
@@ -63,13 +63,13 @@ for(i in 1:3){
   }
 }
 
-legend("topleft", c("Original", "Reduced, oracle", "Reduced, data-driven"),
- col = col.vec, lty = lty.vec, lwd = 2, bty = "n")
+legend("topleft", c("Original", "Oracle", "Data-driven"),
+ col = col.vec, lty = lty.vec, lwd = 2, bty = "n", cex = 1.25)
 
 
 #plot the hausdorff zoom-up
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[3]]$upper)),
-  xlab = "n", ylab = "Hausdorff distance")
+  xlab = "n", ylab = "Hausdorff distance", cex.axis = 1.25, cex.lab = 1.25)
 
 for(i in 2:3){
   points(x = n.vec, y = haus.list[[i]]$med, pch = 16, col = col.vec[i],
@@ -83,16 +83,17 @@ for(i in 2:3){
   }
 }
 
-legend("topright", c("Reduced, oracle", "Reduced, data-driven"),
- col = col.vec[2:3], lty = lty.vec[2:3], lwd = 2, bty = "n")
+legend("topright", c("Oracle", "Data-driven"),
+ col = col.vec[2:3], lty = lty.vec[2:3], lwd = 2, bty = "n", cex = 1.25)
 
 
 #plot the threshold values
-col.vec = c(2, 3)
+col.vec = c(2, "blue2")
 lty.vec = c(1,2)
 
-plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(unlist(thres.list.upper))),
-  xlab = "n", ylab = "Threshold")
+plot(NA, xlim = c(0, max(n.vec)), ylim = c(min(unlist(thres.list.lower)), 
+  max(unlist(thres.list.upper))+.2),
+  xlab = "n", ylab = "Threshold", cex.lab = 1.25, cex.axis = 1.25)
 
 for(i in 1:2){
   points(x = n.vec, y = thres.list[[i]], pch = 16, col = col.vec[i], cex = 2)
@@ -106,7 +107,7 @@ for(i in 1:2){
 }
 
 legend("topright", c("Oracle", "Data-driven"),
- col = col.vec, lwd = 2, lty = c(1,2), bty = "n")
+ col = col.vec, lwd = 2, lty = c(1,2), bty = "n", cex = 1.25)
 
 
 dev.off()

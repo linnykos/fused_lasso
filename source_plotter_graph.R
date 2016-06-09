@@ -20,10 +20,10 @@ plot.2dgraph <- function(mat, est.edge.mat = NA, true.edge.mat = NA,
       tmp = est.edge.mat[i,]
       if(tmp[1] != tmp[3]){
         lines(x = rep(s2[min(tmp[1],tmp[3])],2), 
-         y = c(s1t[tmp[2]],s1t[tmp[2]+1]), col = 3, lwd = 2)
+         y = c(s1t[tmp[2]],s1t[tmp[2]+1]), col = "blue2", lwd = 2)
       } else {
         lines(x = c(s2t[tmp[1]],s1t[tmp[1]+1]), 
-         y = rep(s1[min(tmp[2],tmp[4])],2), col = 3,lwd = 2)
+         y = rep(s1[min(tmp[2],tmp[4])],2), col = "blue2", lwd = 2)
       }
     }
   }

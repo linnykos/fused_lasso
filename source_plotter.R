@@ -41,7 +41,8 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
  
   par(mfrow=c(2,1),mar=c(2,4,1,1))
   
-  plot(y, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "Data values")
+  plot(y, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "Data values", 
+   cex.axis = .8, cex.lab = .8)
 
   .plot.primal(jump.mean, jump.location, y, fit, tol)
   
@@ -72,7 +73,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
  fit, tol, truth = NA, verbose = F){
   n = length(y)
   
-  if(is.na(truth)){
+  if(all(is.na(truth))){
     true.seq = form.truth(jump.mean, jump.location, n)
   
     #plot truth
@@ -85,7 +86,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   }
 
   res.split = split.signal(fit)
-  .plot.helper(res.split$location, res.split$mean, n, col = 3)
+  .plot.helper(res.split$location, res.split$mean, n, col = "blue2")
   
   if(verbose){
     #put text up for a pseudo-y-axis
@@ -152,16 +153,17 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
     truez = apply.filter(truebeta, filter.bandwidth, threshold, 
      return.type = "filter")
     ylim = c(0, max(threshold, z, truez))
-    plot(truez, ylim = ylim, col = 3, pch = 16, ylab = "Filter values")
+    plot(truez, ylim = ylim, col = "blue2", pch = 16, ylab = "Filter values", 
+     cex.axis = .8, cex.lab = .8)
     
-    points(z, col = 3, pch = 16)
+    points(z, col = "blue2", pch = 16)
     
   } else {
     ylim = c(0, max(threshold,z))
-    plot(z, ylim = ylim, col = 3, pch = 16, cex = 1, ylab = "Filter values",
-     type = "l")
+    plot(z, ylim = ylim, col = "blue2", pch = 16, cex = 1, ylab = "Filter values",
+     type = "l", cex.axis = .8, cex.lab = .8)
 
-    points(z, col = 3, cex = 0.5, pch = 16)
+    points(z, col = "blue2", cex = 0.5, pch = 16)
   }
 
   filter.loc = apply.filter(fit, filter.bandwidth, threshold)

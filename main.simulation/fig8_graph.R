@@ -7,7 +7,7 @@ source("source_header.R")
 true.edge.mat = enumerate.jumps.2dgraph(beta0)
 est.edge.mat = enumerate.jumps.2dgraph(beta.est)
 
-pdf(paste0("plots/graph_", Sys.Date(), ".pdf"), height = 3, width = 9)
+pdf(paste0("plots/graph_", Sys.Date(), ".pdf"), height = 2.5, width = 7.5)
 
 par(mfrow = c(1,3))
 par(mar = c(1,1,4,1))
