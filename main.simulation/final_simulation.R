@@ -10,7 +10,7 @@ n.vec = round(10^seq(2,4,length.out=n.length))
 trials = 50
 jump.mean = c(0, 2,  4, 1, 4)
 jump.location = c(0, .2, .4, .6, .8)
-haus.quant = 0.85
+haus.quant = 0.95
 
 registerDoMC(cores = 20)
 
@@ -44,7 +44,6 @@ run.tests <- function(y, truth){
   threshold.adapt = staircase.threshold(y, fit, filter.bandwidth, cv$lambda.min,
    controls = list(type = "original", quant = seq(0, 1, length.out = 101)))
 
-  # do the 25% quant for now
   idx = which(names(threshold.adapt) == paste0(100*haus.quant, "%"))
 
   jumps.adapt = apply.filter(fit, filter.bandwidth, threshold.adapt[idx],

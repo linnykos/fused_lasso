@@ -1,8 +1,6 @@
-apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c("location", "filter", "refit")){
+apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c("location", "filter")){
   n = length(fit)
   return.type = return.type[1]
-  
-  if(return.type == "refit") assert_that(all(!is.na(y)))
   
   jump.loc = enumerate.jumps(fit)
 
@@ -12,14 +10,6 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
   
   jump.remain = .compute.candidatejumps(threshold, z, jump.loc, bandwidth, n)
   if(return.type == "location") return(jump.remain)
-  
-  #WARNING: fix this so its a refit of fused lasso
-  jump.remain = c(1, jump.remain, n+1)
-  refit = sapply(2:length(jump.remain), function(x){
-    mean(y[x-1]:(y[x]-1))
-  })
-  
-  return(refit)
 }
 
 .compute.filter <- function(fit, bandwidth){
@@ -37,7 +27,7 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
 
 .compute.candidatejumps <- function(threshold, filter.values, jump.location, bandwidth, n){
   #WARNING: Check this
-  jump.loc2 = c(jump.location, jump.location-bandwidth, jump.location+bandwidth-1)
+  jump.loc2 = c(jump.location, jump.location-bandwidth, jump.location+bandwidth)
   jump.loc2 = jump.loc2[which(jump.loc2>0)]
   jump.loc2 = jump.loc2[which(jump.loc2<=n)]
   jump.loc2 = sort(unique(jump.loc2))
@@ -59,31 +49,9 @@ oracle.threshold <- function(fit, bandwidth, truth, threshold.seq = seq(0, 2, le
     compute.hausdorff(true.jumps, jumps.oracle)
   })
 
+  #select the threshold corresponding the smallest haus dist
+  #if there are ties, which.min selects the smallest index (i.e., smallest thres)
   threshold.seq[which.min(haus.vec)]
-}
-
-
-#bootstrap the residuals, used fused lasso on the residuals and record filter value to kill the jumps
-bootstrap.threshold <- function(y, fit, filter.bandwidth, lambda, trials = 50, quant = 0.95){
-  assert_that(length(y) == length(fit))
-  
-  n = length(y)
-  residuals = y - fit
-  
-  custom.func <- function(trial){
-    set.seed(10*trial)
-    residuals.shuff = residuals[sample(n)]
-    
-    flasso = fusedlasso1d(residuals.shuff)
-    residuals.fit = coef(flasso, lambda = lambda)
-    filter.res = apply.filter(residuals.fit$beta, bandwidth = filter.bandwidth, return.type = "filter")
-
-    max(abs(filter.res))
-  }
-
-  level.vec = foreach(trial = 1:trials) %dopar% custom.func(trial)
-
-  quantile(unlist(level.vec), prob = quant)
 }
 
 classification.quality <- function(true.jumps, estimate.jumps, bandwidth, n){

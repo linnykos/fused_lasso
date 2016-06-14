@@ -32,7 +32,7 @@
 
 plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda, 
                       num.est.jumps = NA, mse = NA, tol = 1e-7,
-                      filter.bandwidth = NA, threshold = NA, plotDual = T){
+                      filter.bandwidth = NA, threshold = NA){
   
   n = length(fit)
   true.seq = form.truth(jump.mean, jump.location, n)
@@ -45,18 +45,12 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
    cex.axis = .8, cex.lab = .8)
 
   .plot.primal(jump.mean, jump.location, y, fit, tol)
-  
-  #plot dual
-  if(plotDual) {
-    .plot.dual(jump.location, y, fit, lambda, num.est.jumps, mse, tol)
-  } else {
-    if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.25*log(n)^2)
+ 
+  if(is.na(filter.bandwidth)) filter.bandwidth = ceiling(0.25*log(n)^2)
     
-    #WARNING: make truebeta an option
-    .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, 
-      threshold, num.est.jumps)
-  }
-  
+  .plot.filter(fit, filter.bandwidth, jump.mean, jump.location, lambda, mse, 
+    threshold, num.est.jumps)
+ 
   invisible()
 }
 
@@ -98,44 +92,6 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   }
 
   invisible()
-}
-
-.plot.dual <- function(jump.location, y, fit, lambda, 
- num.est.jumps, mse, tol, verbose = F){
-  tmp = fit-y
-  z = cumsum(tmp)
-  n = length(y)
-
-  plot(z,ylim=c(-1.5*lambda,1.5*lambda),col=rgb(.5,.5,.5),pch=16)
-  lines(z,col="blue",lwd=2)
-  lines(x=c(-100,n+100),y=rep(lambda,2),lty=2,lwd=2,col="red")
-  lines(x=c(-100,n+100),y=rep(-lambda,2),lty=2,lwd=2,col="red")
-  
-  tmp = seq(0, 1,length.out = n)
-  jump.location2 = .extract.location(jump.location, tmp)
-  
-  for(i in 1:length(jump.location2)){
-    lines(x=rep(jump.location2[i],2),y=c(-5*lambda,5*lambda),lty=2,lwd=2,col="red")
-  }
-  
-  tmp = which(abs(abs(z)-lambda)<tol)
-  for(i in 1:length(tmp)){
-    if(z[tmp[i]]>0) {
-      lines(x=rep(tmp[i],2),y=c(lambda,5*lambda))
-    } else {
-      lines(x=rep(tmp[i],2),y=c(-lambda,-5*lambda))
-    } 
-  }
-  
-  #some basic text on the bottom (mse, lambda, n)
-  if(verobse){
-    text(x=0,y=-1.2*lambda,labels=paste("MSE: ", round(mse,3),
-     " // Lambda: ",round(lambda,2), " // num.est.jumps: ",
-     num.est.jumps, sep=""),pos=4)
-  }  
-
-  invisible()
-  
 }
 
 #WARNING: Fix the default for num.est.jumps

@@ -1,11 +1,3 @@
-##Standard to abide by: a jump at idx "2" means x[2] != x[3]
-
-
-compute.dual <- function(y, res){
-  tmp = res-y
-  cumsum(tmp)
-}
-
 generate.problem <- function(n, jump.mean, jump.location,  sigma = 0, random.seq = NA){
   #convert jump.location into integer indices
   tmp = seq(0,1,length.out=n)
@@ -26,49 +18,6 @@ generate.problem <- function(n, jump.mean, jump.location,  sigma = 0, random.seq
   
   y
 }
-
-
-dualplot_suite <- function(y, jump.mean, jump.location, lambda = NA, 
-                           num.est.jumps = NA, plot.res = TRUE,
-                           fused.lasso.obj = NA, return.fusedlasso = FALSE){
-  assert_that(!is.na(lambda) || !is.na(num.est.jumps))
-  
-  if(is.na(fused.lasso.obj[1])) {
-    fres = fusedlasso1d(y)
-  } else {
-    fres = fused.lasso.obj
-  }
-  
-  if(!is.na(lambda)) {
-    tmp = coef(fres,lambda=lambda)
-    res = tmp$beta
-  } else {
-    tmp = coef(fres,df=num.est.jumps+1)
-    res = tmp$beta
-    lambda = tmp$lambda
-  }
-
-  ret = summarize(res, jump.mean, jump.location, lambda)
-  
-  if(plot.res) plotfused(jump.mean,jump.location,y,ret[["coef"]],lambda,ret[["jumps"]],ret[["mse"]])
-  
-  ret
-}
-
-summarize <- function(fit, jump.mean, jump.location, lambda){
-  mse = compute.mse(fit, jump.mean, jump.location)
-  num.est.jumps = count.jumps(fit)
-  
-  ret = list()
-  class(ret) = "fusedLassoSummary"
-  ret[["coef"]] = fit
-  ret[["lambda"]] = lambda
-  ret[["jumps"]] = num.est.jumps
-  ret[["mse"]] = mse
-  
-  return(ret)
-}
-
 
 compute.mse <- function(res, jump.mean=NA, jump.location=NA, true.seq=NA){
   bool1 = !is.na(jump.mean[1]) & !is.na(jump.location[1])
@@ -109,11 +58,11 @@ form.truth <- function(jump.mean, jump.location, n){
 }
 
 #outputs the first index in a new segment
-enumerate.jumps <- function(fit, tol = 1e-4, include.endpoints = FALSE){
+enumerate.jumps <- function(fit, tol = 1e-4){
   dif = abs(diff(fit))
-  idx = which(dif > tol) + 1
+  idx = which(dif > tol)
   
-  if(include.endpoints) c(1, idx, length(fit)+1) else idx
+  idx
 }
 
 #if one.sided = TRUE, then only measure the distance from set1 to set2
@@ -132,13 +81,4 @@ compute.hausdorff <- function(set1, set2, one.sided = FALSE){
   if(!one.sided) dist.vecy = apply(dist.mat, 1, min) else dist.vecy = 0
   
   max(dist.vecx, dist.vecy)
-}
-
-form.diff.matrix <- function(n){
-  res = matrix(0,n-1,n)
-  for(i in 1:(n-1)){
-    res[i,c(i,i+1)] = c(-1,1)
-  }
-  
-  res
 }
