@@ -15,21 +15,21 @@ apply.filter <- function(fit, bandwidth, threshold = 0, y = NA, return.type = c(
 .compute.filter <- function(fit, bandwidth){
   n = length(fit)
 
-  z = sapply((bandwidth+1):(n-bandwidth+1), function(x){
-    abs(mean(fit[x:(x+bandwidth-1)]) - mean(fit[(x-bandwidth):(x-1)]))
+  z = sapply(bandwidth:(n-bandwidth), function(x){
+    abs(mean(fit[(x+1):(x+bandwidth)]) - mean(fit[(x-bandwidth+1):(x)]))
   })
 
   #pad the z's
-  z = c(rep(0, bandwidth), z, rep(0, bandwidth-1))
+  z = c(rep(0, bandwidth-1), z, rep(0, bandwidth))
 
   z
 }
 
 .compute.candidatejumps <- function(threshold, filter.values, jump.location, bandwidth, n){
-  #WARNING: Check this
   jump.loc2 = c(jump.location, jump.location-bandwidth, jump.location+bandwidth)
-  jump.loc2 = jump.loc2[which(jump.loc2>0)]
-  jump.loc2 = jump.loc2[which(jump.loc2<=n)]
+  jump.loc2 = jump.loc2[which(jump.loc2 >= bandwidth)]
+  jump.loc2 = jump.loc2[which(jump.loc2 <= n - bandwidth)]
+  jump.loc2 = c(bandwidth, jump.loc2, n-bandwidth)
   jump.loc2 = sort(unique(jump.loc2))
 
   filtered.idx = which(abs(filter.values) >= threshold)

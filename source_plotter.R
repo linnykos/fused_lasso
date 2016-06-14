@@ -54,15 +54,6 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   invisible()
 }
 
-.extract.location <- function(jump.location, sequence){
-  jump.location2 = sapply(jump.location, function(x){max(min(which(
-    sequence>=x)),1)-1})
-  jump.location2[1] = 1
-  jump.location2 = sort(jump.location2)
-  
-  jump.location2
-}
-
 .plot.primal <- function(jump.mean = NA, jump.location = NA, y, 
  fit, tol, truth = NA, verbose = F){
   n = length(y)
@@ -96,7 +87,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
 
 #WARNING: Fix the default for num.est.jumps
 .plot.filter <- function(fit, filter.bandwidth, jump.mean, jump.location, 
- lambda, mse, threshold = NA, num.est.jumps = NA, truebeta = NA, verbose = F){
+ lambda, mse, threshold = NA, num.est.jumps = NA, verbose = F){
 
   n = length(fit)
   
@@ -104,31 +95,23 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   
   z = apply.filter(fit, filter.bandwidth, threshold, return.type = "filter")
  
-  #plot the filter values of the true beta
-  if(all(!is.na(truebeta))){
-    truez = apply.filter(truebeta, filter.bandwidth, threshold, 
-     return.type = "filter")
-    ylim = c(0, max(threshold, z, truez))
-    plot(truez, ylim = ylim, col = "blue2", pch = 16, ylab = "Filter values", 
-     cex.axis = .8, cex.lab = .8)
-    
-    points(z, col = "blue2", pch = 16)
-    
-  } else {
-    ylim = c(0, max(threshold,z))
-    plot(z, ylim = ylim, col = "blue2", pch = 16, cex = 1, ylab = "Filter values",
-     type = "l", cex.axis = .8, cex.lab = .8)
+  ylim = c(0, max(threshold,z))
 
-    points(z, col = "blue2", cex = 0.5, pch = 16)
-  }
+  ylim[1] = ylim[1] - 0.1*diff(range(ylim))
+  ylim[2] = ylim[2] + 0.1*diff(range(ylim))
 
+
+  plot(z, ylim = ylim, col = 4, pch = 16, cex = 1, ylab = "Absolute
+   filter values", type = "l", cex.axis = .8, cex.lab = .8)
+
+  points(z, col = 4, cex = 0.5, pch = 16)
+  
   filter.loc = apply.filter(fit, filter.bandwidth, threshold)
-  rug(filter.loc, col = 1, lwd = 2, ticksize = 0.07,  side = 1)
+  rug(filter.loc, col = 1, lwd = 2, ticksize = 0.07,  side = 3)
 
-  rug(enumerate.jumps(fit), col = 1, lwd = 2, ticksize = 0.07, side = 3)
+  rug(enumerate.jumps(fit), col = 1, lwd = 2, ticksize = 0.07, side = 1)
 
   lines(x = c(-n, 2*n), y = rep(threshold, 2), lty = 2, lwd = 2, col = 2)
 
   invisible()
-  
 }
