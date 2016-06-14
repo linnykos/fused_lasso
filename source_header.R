@@ -8,11 +8,8 @@ library(glmnet)
 
 source("source_main.R") #main fused lasso stuff
 source("source_plotter.R") #main plotting
-source("source_threshold.R") #seeing if we can threshold post-fused lasso
 source("source_filter.R")
-source("source_filter_localpermute.R")
 source("source_filter_staircase.R")
-source("source_puffer.R")
 source("source_common.R")
 source("source_plotter_haus.R")
 source("source_intersim.R")
