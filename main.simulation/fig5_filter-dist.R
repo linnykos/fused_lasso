@@ -16,8 +16,9 @@ for(i in 1:length(oracle.seq)){
   }
 }
 
-pdf(paste0("plots/Haus_", Sys.Date(), ".pdf"), height = 3, width = 3)
+pdf(paste0("plots/Haus_", Sys.Date(), ".pdf"), height = 5, width = 5)
 
 plot.hausdorff(left.mat, right.mat)
 
-dev.off()
+graphics.off()
+quit()

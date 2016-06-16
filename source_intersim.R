@@ -21,7 +21,9 @@
 }
 
 lower.interpolant <- function(fit, truth, include.demean = F){
-  jumps = enumerate.jumps(truth, include.endpoints = T)
+  jumps = enumerate.jumps(truth)
+  jumps = c(1, jumps, length(fit)+1)
+
   z = rep(0, length(fit))
   demeaned = z
 

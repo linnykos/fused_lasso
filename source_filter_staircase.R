@@ -63,7 +63,8 @@ staircase.threshold <- function(y, fit, filter.bandwidth, lambda, controls =
 }
 
 .arrange.flip <- function(fit, tol = 0){
-  jumps = enumerate.jumps(fit, tol, include.endpoints = T)
+  jumps = enumerate.jumps(fit, tol)
+  jumps = c(1, jumps, length(fit))
   newfit = fit
 
   #on iteration i, figure out the difference between i-1 and i

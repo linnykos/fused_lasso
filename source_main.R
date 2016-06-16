@@ -35,9 +35,10 @@ count.jumps <- function(fit, tol=1e-3){
   length(enumerate.jumps(fit, tol))
 }
 
+#WARNING: A bit janky
 split.signal <- function(vec){
-  jumps = enumerate.jumps(vec, include.endpoints = T)
-  jumps = jumps[-length(jumps)]
+  jumps = c(0, enumerate.jumps(vec))
+  jumps = jumps+1
   val = vec[jumps]
 
   list(location = jumps, mean = val)

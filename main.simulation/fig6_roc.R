@@ -54,14 +54,14 @@ for(i in 1:4){
   class.vec[i,] = apply(class.mat[[i]], 2, mean, na.rm = T)
 }
 
-pdf(paste0("plots/ROC_", Sys.Date(), ".pdf"), height = 2.5, width = 7.5)
-par(mar = c(4,4,1,1))
+pdf(paste0("plots/ROC_", Sys.Date(), ".pdf"), height = 3, width = 9)
+par(mar = c(4.25,4.25,1,1))
 par(mfrow = c(1,3))
 
 #plot 1: of hausdorff distance
 plot(x = haus.vec[1,], y = haus.vec[2,], pch = 16,
-  xlab = "Haus. dist. from truth to est.", 
-  ylab = "Haus. dist. from est. to truth", cex.axis = 1.25, cex.lab = 1.25)
+  xlab = "Distance from truth to estimate", 
+  ylab = "Distance from estimate to truth", cex.axis = 1.25, cex.lab = 1.25)
 lines(x = haus.vec[1,], y = haus.vec[2,], lwd = 2)
 
 lines(x = haus.vec[3,], y = haus.vec[4,], lwd = 2, lty = 2, col = 2)
@@ -90,5 +90,6 @@ lines(x = c(0,1), y = c(0,1), lty = 2, lwd = 2)
 
 lines(x = rep(0.95, 2), y = c(-1,2), lty = 2, lwd = 2, col = 2)
 
-dev.off()
+graphics.off()
+quit()
 

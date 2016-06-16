@@ -14,7 +14,7 @@ pdf(file = paste0("plots/data-", Sys.Date(), ".pdf"), width = 9,
   height = 2.5)
 
 par(mfcol = c(1,2))
-par(mar = c(2,4,1,1))
+par(mar = c(2,3,1,1))
 
 i.vec = c(5,10)
 trial = 1
@@ -32,4 +32,5 @@ for(i in i.vec){
   .plot.helper(truth.split$location, truth.split$mean, n.vec[i], col = 2)
 }
 
-dev.off()
+graphics.off()
+quit()

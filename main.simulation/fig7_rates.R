@@ -1,6 +1,6 @@
 setwd("~/ryan/fused.git")
 
-load("results/final-2016-05-22.RData")
+load("results/final-2016-06-15-0.95.RData")
 library(assertthat)
 library(grDevices)
 
@@ -32,10 +32,10 @@ library(grDevices)
 }
 
 
-pdf(file = paste0("plots/rates-", Sys.Date(), ".pdf"), width = 7.5,
-  height = 2.5)
+pdf(file = paste0("plots/rates-", Sys.Date(), ".pdf"), width = 9,
+  height = 3)
 par(mfrow = c(1,3))
-par(mar = c(4,4,1,1))
+par(mar = c(4.25,4.25,1,1))
 
 plot(NA, xlab = "n", ylab = expression(lambda), ylim = c(0, median(res.list$lambda[,10]) + 
  sd(res.list$lambda[,10])), xlim = c(0, max(n.vec)), cex.lab = 1.25, 
@@ -48,11 +48,12 @@ plot(NA, xlab = "n", ylab = "MSE", ylim = c(0, median(res.list$mse[,1]) + sd(res
  xlim = c(0, max(n.vec)), cex.lab = 1.25, cex.axis = 1.25)
 .plot.rates(res.list$mse, theoretical.rate = function(x){log(x)*log(log(x))/x})
 
-plot(NA, xlab = "log n", ylab = "n MSE", ylim = c(0, (median(res.list$mse[,10]) + sd(res.list$mse[,10])) * n.vec[10]),
+plot(NA, xlab = "log(n)", ylab = "n * MSE", ylim = c(0, (median(res.list$mse[,10]) + sd(res.list$mse[,10])) * n.vec[10]),
  xlim = c(min(log(n.vec)), max(log(n.vec))), cex.lab = 1.25, cex.axis = 1.25)
 
 tmpmat = res.list$mse
 for(i in 1:ncol(tmpmat)) tmpmat[,i] = tmpmat[,i]*n.vec[i]
 .plot.rates(tmpmat, n.vec = log(n.vec), theoretical.rate = function(x){x*log(x)})
 
-dev.off()
+graphics.off()
+quit()

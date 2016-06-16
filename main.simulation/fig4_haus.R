@@ -1,5 +1,5 @@
 setwd("~/ryan/fused.git")
-load("results/final-2016-05-22.RData")
+load("results/final-2016-06-15-0.95.RData")
 
 compute.haus <- function(mat1, mat2){
   haus = pmax(mat1, mat2)
@@ -38,20 +38,20 @@ thres.list.lower[[2]] = sapply(1:length(res.list$threshold.adapt), function(x){
 })
 
 
-pdf(file = paste0("plots/haus-dist-", Sys.Date(), ".pdf"), width = 7.5,
- height = 2.5)
+pdf(file = paste0("plots/haus-dist-", Sys.Date(), ".pdf"), width = 9,
+ height = 3)
 
-par(mar = c(4,4,1,1))
+par(mar = c(4.25,4.25,1,1))
 par(mfrow = c(1,3))
 
 #plot the hausdorff
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[1]]$upper)),
   xlab = "n", ylab = "Hausdorff distance", cex.axis = 1.25, cex.lab = 1.25)
 
-col.vec = c(1, 2, "blue2")
+col.vec = c(1, 2, 4)
 lty.vec = c(3, 1, 2)
 
-for(i in 1:3){
+for(i in c(1,3,2)){
   points(x = n.vec, y = haus.list[[i]]$med, pch = 16, col = col.vec[i],
    cex = 2)
   lines(x = n.vec, y = haus.list[[i]]$med, lty = lty.vec[i], col = col.vec[i],
@@ -63,15 +63,16 @@ for(i in 1:3){
   }
 }
 
-legend("topleft", c("Original", "Oracle", "Data-driven"),
- col = col.vec, lty = lty.vec, lwd = 2, bty = "n", cex = 1.25)
+legend("topleft", c("Original", "Data-driven", "Oracle"),
+ col = col.vec[c(1,3,2)], lty = lty.vec[c(1,3,2)], 
+ lwd = 2, bty = "n", cex = 1.25)
 
 
 #plot the hausdorff zoom-up
-plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[3]]$upper)),
+plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[3]]$med)),
   xlab = "n", ylab = "Hausdorff distance", cex.axis = 1.25, cex.lab = 1.25)
 
-for(i in 2:3){
+for(i in 3:2){
   points(x = n.vec, y = haus.list[[i]]$med, pch = 16, col = col.vec[i],
    cex = 2)
   lines(x = n.vec, y = haus.list[[i]]$med, lty = lty.vec[i], col = col.vec[i],
@@ -83,19 +84,19 @@ for(i in 2:3){
   }
 }
 
-legend("topright", c("Oracle", "Data-driven"),
- col = col.vec[2:3], lty = lty.vec[2:3], lwd = 2, bty = "n", cex = 1.25)
+legend("topright", c("Data-driven", "Oracle"),
+ col = col.vec[3:2], lty = lty.vec[3:2], lwd = 2, bty = "n", cex = 1.25)
 
 
 #plot the threshold values
-col.vec = c(2, "blue2")
+col.vec = c(2, 4)
 lty.vec = c(1,2)
 
 plot(NA, xlim = c(0, max(n.vec)), ylim = c(min(unlist(thres.list.lower)), 
   max(unlist(thres.list.upper))+.2),
   xlab = "n", ylab = "Threshold", cex.lab = 1.25, cex.axis = 1.25)
 
-for(i in 1:2){
+for(i in 2:1){
   points(x = n.vec, y = thres.list[[i]], pch = 16, col = col.vec[i], cex = 2)
   lines(x = n.vec, y = thres.list[[i]], lwd = 3, col = col.vec[i], 
    lty = lty.vec[i])
@@ -106,8 +107,8 @@ for(i in 1:2){
   }
 }
 
-legend("topright", c("Oracle", "Data-driven"),
- col = col.vec, lwd = 2, lty = c(1,2), bty = "n", cex = 1.25)
+legend("topright", c("Data-driven", "Oracle"),
+ col = col.vec[2:1], lwd = 2, lty = c(2,1), bty = "n", cex = 1.25)
 
-
-dev.off()
+graphics.off()
+quit()

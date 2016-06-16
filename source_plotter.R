@@ -2,9 +2,7 @@
 .plot.helper <- function(jump.location, jump.mean, n, col = "black", 
  lwd = 3, lty = 1, plot.vertical = T){
   assert_that(length(jump.location) == length(jump.mean))
-  assert_that(max(jump.location) < n)
   assert_that(all(jump.location == sort(jump.location, decreasing = F)))
-  assert_that(jump.location[1] == 1)  
 
   len = length(jump.location)
   if(len>1){
@@ -54,10 +52,19 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   invisible()
 }
 
-.plot.primal <- function(jump.mean = NA, jump.location = NA, y, 
- fit, tol, truth = NA, verbose = F){
-  n = length(y)
+.extract.location <- function(jump.location, sequence){
+  jump.location2 = sapply(jump.location, function(x){max(min(which(
+    sequence>=x)),1)-1})
+  jump.location2[1] = 1
+  jump.location2 = sort(jump.location2)
   
+  jump.location2
+}
+
+.plot.primal <- function(jump.mean = NA, jump.location = NA, y, 
+ fit, tol, truth = NA, verbose = F, truth.col = 2, est.col = 4){
+  n = length(y)
+ 
   if(all(is.na(truth))){
     true.seq = form.truth(jump.mean, jump.location, n)
   
@@ -66,12 +73,12 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
     jump.location2 = .extract.location(jump.location, tmp)
     .plot.helper(jump.location2, jump.mean, n, col = 2)
   } else {
-    truth.split =  split.signal(truth)
-    .plot.helper(truth.split$location, truth.split$mean, n, col = 2)
+    truth.split = split.signal(truth)
+    .plot.helper(truth.split$location, truth.split$mean, n, col = truth.col)
   }
 
   res.split = split.signal(fit)
-  .plot.helper(res.split$location, res.split$mean, n, col = "blue2")
+  .plot.helper(res.split$location, res.split$mean, n, col = est.col)
   
   if(verbose){
     #put text up for a pseudo-y-axis
@@ -100,9 +107,8 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
   ylim[1] = ylim[1] - 0.1*diff(range(ylim))
   ylim[2] = ylim[2] + 0.1*diff(range(ylim))
 
-
-  plot(z, ylim = ylim, col = 4, pch = 16, cex = 1, ylab = "Absolute
-   filter values", type = "l", cex.axis = .8, cex.lab = .8)
+  plot(z, ylim = ylim, col = 4, pch = 16, cex = 1, 
+   ylab = "Absolute filter values", type = "l", cex.axis = .8, cex.lab = .8)
 
   points(z, col = 4, cex = 0.5, pch = 16)
   
@@ -111,7 +117,7 @@ plotfused <- function(jump.mean, jump.location, y, fit, truth = NA, lambda,
 
   rug(enumerate.jumps(fit), col = 1, lwd = 2, ticksize = 0.07, side = 1)
 
-  lines(x = c(-n, 2*n), y = rep(threshold, 2), lty = 2, lwd = 2, col = 2)
+  lines(x = c(-n, 2*n), y = rep(threshold, 2), lty = 2, lwd = 2, col = 3)
 
   invisible()
 }

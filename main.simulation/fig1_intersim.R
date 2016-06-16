@@ -52,10 +52,10 @@ pdf(file = paste0("plots/interpsim-", Sys.Date(), ".pdf"), width = 9,
   height = 5)
 
 par(mfcol = c(2,2))
-par(mar = c(2,4,1,1))
+par(mar = c(2,2,1,1))
 
 #first plot (primal)
-plot(y, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "Value")
+plot(y, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "")
 .plot.primal(jump.mean, jump.location, y, fit, tol = 1e-6, verbose = F)
 
 #second plot (residuals)
@@ -63,7 +63,7 @@ res.split = split.signal(interpolant$demeaned)
 int.split = split.signal(interpolant$lower.int)
 
 plot(NA, xlim = c(0, n.vec[i]), ylim = c(min(res.split$mean, int.split$mean),
- max(res.split$mean, int.split$mean)), ylab = "Residual value")
+ max(res.split$mean, int.split$mean)), ylab = "")
 
 truth.split = split.signal(truth)
 for(i in 2:length(truth.split$location)){
@@ -71,11 +71,11 @@ for(i in 2:length(truth.split$location)){
    lwd = 2, col = 2)
 }
 
-.plot.helper(res.split$location, res.split$mean, n.vec[i], col = "blue2")
+.plot.helper(res.split$location, res.split$mean, n.vec[i], col = 4)
 .plot.helper(int.split$location, int.split$mean, n.vec[i], lty = 2)
 
 #third plot for the second simulation
-plot(y2, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "Value")
+plot(y2, col=rgb(.7,.7,.7), pch=16, cex=1.25, ylab = "")
 .plot.primal(NA, NA, y2, fit2, truth = truth2,
   tol = 1e-6, verbose = F)
 
@@ -84,7 +84,7 @@ res2.split = split.signal(interpolant2$demeaned)
 int2.split = split.signal(interpolant2$lower.int)
 
 plot(NA, xlim = c(0, n), ylim = c(min(res2.split$mean, int2.split$mean), 
- max(res2.split$mean, int2.split$mean)), ylab = "Residual value")
+ max(res2.split$mean, int2.split$mean)), ylab = "")
 
 truth2.split = split.signal(truth2)
 for(i in 2:length(truth2.split$location)){
@@ -92,8 +92,9 @@ for(i in 2:length(truth2.split$location)){
    lwd = 2, col = 2)
 }
 
-.plot.helper(res2.split$location, res2.split$mean, n, col = "blue2")
+.plot.helper(res2.split$location, res2.split$mean, n, col = 4)
 .plot.helper(int2.split$location, int2.split$mean, n, lty = 2)
 
 
-dev.off()
+graphics.off()
+quit()
