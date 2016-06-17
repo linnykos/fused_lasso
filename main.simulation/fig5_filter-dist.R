@@ -1,6 +1,6 @@
 setwd("~/ryan/fused.git/")
 
-load("results/final-ROC2-2016-05-21.RData")
+load("results/final-ROC2-2016-06-17.RData")
 source("source_header.R")
 
 left.mat = matrix(0, ncol = length(oracle.seq), nrow = trials)

@@ -1,5 +1,5 @@
 rm(list=ls())
-load("~/ryan/fused.git/results/graph-dim_100_2016-06-01_reduced.RData")
+load("~/ryan/fused.git/results/graph-dim_100_2016-06-16_reduced.RData")
 setwd("~/ryan/fused.git")
 source("source_header.R")
 

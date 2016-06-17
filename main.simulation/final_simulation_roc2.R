@@ -3,7 +3,7 @@ rm(list=ls())
 setwd("~/ryan/fused.git/")
 source("source_header.R")
 
-load("results/final-ROC-2016-05-21.RData")
+load("results/final-ROC-2016-06-16.RData")
 
 registerDoMC(cores = 20)
 

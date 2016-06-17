@@ -28,7 +28,7 @@ run.test <- function(y, truth){
   filter.quant = staircase.threshold(y, fit,
    filter.bandwidth, cv$lambda.1se, controls = list(type =
     "original", quant = seq(0, 1, length.out = 101), 
-    trials = 500))
+    trials = 150))
 
   filter.quant
 }

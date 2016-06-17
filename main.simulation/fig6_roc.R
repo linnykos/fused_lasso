@@ -1,5 +1,6 @@
 setwd("~/ryan/fused.git")
-load("results/final-ROC2-2016-05-21.RData")
+load("results/final-ROC2-2016-06-17.RData")
+source("source_header.R")
 
 n = n.vec[i]
 filter.bandwidth = ceiling(0.25*(log(n))^2)
@@ -60,35 +61,35 @@ par(mfrow = c(1,3))
 
 #plot 1: of hausdorff distance
 plot(x = haus.vec[1,], y = haus.vec[2,], pch = 16,
-  xlab = "Distance from truth to estimate", 
-  ylab = "Distance from estimate to truth", cex.axis = 1.25, cex.lab = 1.25)
+  xlab = "Screening distance", 
+  ylab = "Precision distance", cex.axis = 1.25, cex.lab = 1.25)
 lines(x = haus.vec[1,], y = haus.vec[2,], lwd = 2)
 
-lines(x = haus.vec[3,], y = haus.vec[4,], lwd = 2, lty = 2, col = 2)
+#lines(x = haus.vec[3,], y = haus.vec[4,], lwd = 2, lty = 2, col = 2)
 
 idx = which(colnames(filter.mat) == "0.95")
 points(x = haus.vec[3,idx], y = haus.vec[4,idx], pch = 16, cex = 2, col = 2)
 
 #plot 2: of classification
 plot(x = class.vec[2,], y = class.vec[1,], pch = 16,
-  ylab = "% of all true jumps detected", 
-  xlab = "% of one+ false jumps detected", cex.axis = 1.25,
+  ylab = "TPR", 
+  xlab = "FPR", cex.axis = 1.25,
   cex.lab = 1.25)
 lines(x = class.vec[2,], y = class.vec[1,], lwd = 2)
 
-lines(x = class.vec[4,], y = class.vec[3,], lwd = 2, lty = 2, col = 2)
+#lines(x = class.vec[4,], y = class.vec[3,], lwd = 2, lty = 2, col = 2)
 
 idx = which(colnames(filter.mat) == "0.95")
 points(x = class.vec[4,idx], y = class.vec[3,idx], pch = 16, cex = 2, col = 2)
 
 #plot 3: of the proportion
-plot(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], pch = 16,  
- xlab = "Filter quantile cutoff", ylab = "% of no false jump detected",
+plot(x = 1 - as.numeric(colnames(filter.mat)), y = class.vec[4,], pch = 16,  
+ xlab = "1 - q", ylab = "FDR",
  cex.lab = 1.25, cex.axis = 1.25)
-lines(x = as.numeric(colnames(filter.mat)), y = 1-class.vec[4,], lwd = 2)
+lines(x = 1 - as.numeric(colnames(filter.mat)), y = class.vec[4,], lwd = 2)
 lines(x = c(0,1), y = c(0,1), lty = 2, lwd = 2)
 
-lines(x = rep(0.95, 2), y = c(-1,2), lty = 2, lwd = 2, col = 2)
+#lines(x = rep(0.95, 2), y = c(-1,2), lty = 2, lwd = 2, col = 2)
 
 graphics.off()
 quit()
