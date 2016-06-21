@@ -7,20 +7,28 @@ source("source_header.R")
 true.edge.mat = enumerate.jumps.2dgraph(beta0)
 est.edge.mat = enumerate.jumps.2dgraph(beta.est)
 
-pdf(paste0("plots/graph_", Sys.Date(), ".pdf"), height = 2.5, width = 7.5)
+y.clipped = y
+y.clipped[y.clipped < quantile(y, 0.1)] = quantile(y, 0.1)
+y.clipped[y.clipped > quantile(y, 0.9)] = quantile(y, 0.9)
+
+pdf(paste0("plots/graph_", Sys.Date(), ".pdf"), height = 3, width = 9)
 
 par(mfrow = c(1,3))
-par(mar = c(1,1,4,1))
+par(mar = c(0.25, 0.25, 2, 0.25))
+color.vec = gray.colors(30)
+zlim = range(c(beta0, beta.est, y.clipped))
 
-plot.2dgraph(beta0, true.edge.mat = true.edge.mat)
-title(main = "True values")
+plot.2dgraph(beta0, true.edge.mat = true.edge.mat, color.vec = color.vec,
+  zlim = zlim)
+title(main = "Mean")
 
-image(y, col = gray.colors(30), asp = T, xlab = "", ylab = "", yaxt = "n",
- xaxt = "n", bty = "n")
-title(main = "Observed values")
+image(y.clipped, col = color.vec, asp = T, xlab = "", ylab = "", yaxt = "n",
+ xaxt = "n", bty = "n", zlim = zlim)
+title(main = "Data")
 
 plot.2dgraph(beta.est, true.edge.mat = true.edge.mat, est.edge.mat =
- est.edge.mat)
-title(main = "Estimated values")
+ est.edge.mat, zlim = zlim, color.vec = color.vec)
+title(main = "Estimate")
 
-dev.off()
+graphics.off()
+quit()

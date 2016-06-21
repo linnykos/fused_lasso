@@ -69,7 +69,7 @@ legend("topleft", c("Original", "Data-driven", "Oracle"),
 
 
 #plot the hausdorff zoom-up
-plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[3]]$med)),
+plot(NA, xlim = c(0, max(n.vec)), ylim = c(0, max(haus.list[[3]]$upper)),
   xlab = "n", ylab = "Hausdorff distance", cex.axis = 1.25, cex.lab = 1.25)
 
 for(i in 3:2){
